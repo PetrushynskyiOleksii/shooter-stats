@@ -28,7 +28,7 @@ class GameMod(db.Model, BaseManager):
 
     __tablename__ = 'game_mods'
 
-    title = db.Column(db.String(10), nullable=False)
+    title = db.Column(db.String(10), nullable=False, primary_key=True, unique=True)
     description = db.Column(db.Text, nullable=False)
 
     def __init__(self, data):
@@ -51,9 +51,9 @@ class Server(db.Model, BaseManager):
 
     __tablename__ = 'servers'
 
-    id = db.Column(db.SmallInteger, primary_key=True)
-    title = db.Column(db.String(64), nullable=False)
-    endpoint = db.Column(db.String(128), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(64), nullable=False, unique=True)
+    endpoint = db.Column(db.String(128), nullable=False, unique=True)
     total_matches_played = db.Column(db.Integer)
     # TODO: avg & max played per day
 
