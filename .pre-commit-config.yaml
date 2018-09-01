@@ -19,3 +19,4 @@
   sha: v2.1.1
   hooks:
   - id: pydocstyle
+    exclude: migrations/
