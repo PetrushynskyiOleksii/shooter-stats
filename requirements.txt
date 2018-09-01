@@ -1,0 +1,2 @@
+connexion==1.5.2
+flask==1.0.2
