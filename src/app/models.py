@@ -3,7 +3,27 @@
 from app import db
 
 
-class GameMod(db.Model):
+class BaseManager(object):
+    """Base query manager."""
+
+    def save(self):
+        """Save instance in database."""
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        """Delete instance from database."""
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self, data):
+        """Update existing instance in database."""
+        for key, item in data.items():
+            setattr(self, key, item)
+        db.session.commit()
+
+
+class GameMod(db.Model, BaseManager):
     """Server database representation."""
 
     __tablename__ = 'game_mods'
@@ -16,18 +36,6 @@ class GameMod(db.Model):
         self.title = data.get('title')
         self.description = data.get('description')
 
-    def save(self):
-        """Save game mod instance in database."""
-        # TODO: abstract method
-        db.session.add(self)
-        db.session.commit()
-
-    def delete(self):
-        """Delete game mod instance from database."""
-        # TODO: abstract method
-        db.session.delete(self)
-        db.session.commit()
-
     @staticmethod
     def get_gamemod(id):
         """Retrieve particular game mod instance."""
@@ -38,7 +46,7 @@ class GameMod(db.Model):
         return f'{self.title}'
 
 
-class Server(db.Model):
+class Server(db.Model, BaseManager):
     """Server database representation."""
 
     __tablename__ = 'servers'
@@ -47,7 +55,6 @@ class Server(db.Model):
     title = db.Column(db.String(64), nullable=False)
     endpoint = db.Column(db.String(128), nullable=False)
     total_matches_played = db.Column(db.Integer)
-
     # TODO: avg & max played per day
 
     def __init__(self, data):
@@ -55,22 +62,6 @@ class Server(db.Model):
         self.title = data.get('title')
         self.endpoint = data.get('endpoint')
         self.total_matches_played = 0
-
-    def save(self):
-        """Save post instance in database."""
-        db.session.add(self)
-        db.session.commit()
-
-    def update(self, data):
-        """Update post instance in database."""
-        for key, item in data.items():
-            setattr(self, key, item)
-        db.session.commit()
-
-    def delete(self):
-        """Delete post instance from database."""
-        db.session.delete(self)
-        db.session.commit()
 
     @staticmethod
     def get_all():
