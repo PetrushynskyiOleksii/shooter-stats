@@ -38,10 +38,14 @@ class Player(db.Model):
 
     def __init__(self, data):
         """Player model constructor."""
-        self.nickname = data.get('nickname', 0)
+        self.nickname = data.get('nickname')
         self.kills = data.get('kills', 0)
         self.deaths = data.get('deaths', 0)
         self.assists = data.get('assists', 0)
+
+    def __repr__(self):
+        """Return player instance as a string."""
+        return f'{self.nickname}'
 
     @property
     def kda(self):
