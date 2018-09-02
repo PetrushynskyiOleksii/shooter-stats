@@ -22,3 +22,4 @@ def create_app(config_name):
 
 
 from .models.shooter import *
+from .models.players import *
