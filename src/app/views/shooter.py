@@ -1,3 +1,5 @@
 """Collection of game statistic endpoints."""
 
-from . import shooter_api # noqa
+from flask import Blueprint
+
+shooter_api = Blueprint('shooter', __name__)
