@@ -1,7 +1,6 @@
 """Stats models for database representation."""
 
-from app import db
-from . import BaseManager
+from . import db, BaseManager
 
 
 mods = db.Table(
@@ -18,7 +17,7 @@ class Server(db.Model, BaseManager):
 
     id = db.Column(db.Integer, primary_key=True)
     endpoint = db.Column(db.String(128), nullable=False, unique=True)
-    title = db.Column(db.String(64), nullable=False, unique=True)
+    title = db.Column(db.String(64), nullable=False)
     mods = db.relationship('GameMod', secondary=mods, lazy='subquery')
     matches = db.relationship('Match', backref='server', lazy=True)
 
@@ -26,6 +25,10 @@ class Server(db.Model, BaseManager):
         """Post model constructor."""
         self.endpoint = data.get('endpoint')
         self.title = data.get('title')
+
+    def __repr__(self):
+        """Return server instance as a string."""
+        return f'{self.title} ({self.id})'
 
     @staticmethod
     def get_all():
@@ -36,10 +39,6 @@ class Server(db.Model, BaseManager):
     def get_server(id):
         """Retrieve particular server instance."""
         return Server.query.get(id)
-
-    def __repr__(self):
-        """Return server instance as a string."""
-        return f'{self.title} ({self.id})'
 
 
 class GameMod(db.Model, BaseManager):

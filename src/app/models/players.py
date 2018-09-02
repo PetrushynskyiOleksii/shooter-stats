@@ -1,6 +1,6 @@
 """Players models for database representations."""
 
-from app import db
+from . import db
 
 
 class Player(db.Model):
