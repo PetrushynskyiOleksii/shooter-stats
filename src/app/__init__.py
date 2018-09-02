@@ -21,4 +21,4 @@ def create_app(config_name):
     return app
 
 
-from .models import *
+from .models.shooter import *
