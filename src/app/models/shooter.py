@@ -1,14 +1,6 @@
 """Stats models for database representation."""
 
-from app import db
-from . import BaseManager
-
-
-mods = db.Table(
-    'mods',
-    db.Column('game_mod_id', db.Integer, db.ForeignKey('game_mod.id'), primary_key=True),
-    db.Column('server_id', db.Integer, db.ForeignKey('server.id'), primary_key=True)
-)
+from . import db, BaseManager
 
 
 class Server(db.Model, BaseManager):
@@ -18,14 +10,16 @@ class Server(db.Model, BaseManager):
 
     id = db.Column(db.Integer, primary_key=True)
     endpoint = db.Column(db.String(128), nullable=False, unique=True)
-    title = db.Column(db.String(64), nullable=False, unique=True)
-    mods = db.relationship('GameMod', secondary=mods, lazy='subquery')
-    matches = db.relationship('Match', backref='server', lazy=True)
+    title = db.Column(db.String(64), nullable=False)
 
     def __init__(self, data):
         """Post model constructor."""
         self.endpoint = data.get('endpoint')
         self.title = data.get('title')
+
+    def __repr__(self):
+        """Return server instance as a string."""
+        return f'{self.title} ({self.id})'
 
     @staticmethod
     def get_all():
@@ -36,34 +30,6 @@ class Server(db.Model, BaseManager):
     def get_server(id):
         """Retrieve particular server instance."""
         return Server.query.get(id)
-
-    def __repr__(self):
-        """Return server instance as a string."""
-        return f'{self.title} ({self.id})'
-
-
-class GameMod(db.Model, BaseManager):
-    """Server database representation."""
-
-    __tablename__ = 'game_mod'
-
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(10), nullable=False, unique=True)
-    description = db.Column(db.Text, nullable=False)
-
-    def __init__(self, data):
-        """Game mods model constructor."""
-        self.title = data.get('title')
-        self.description = data.get('description')
-
-    @staticmethod
-    def get_gamemod(id):
-        """Retrieve particular game mod instance."""
-        return GameMod.query.get(id)
-
-    def __repr__(self):
-        """Return game mod instance as a string."""
-        return f'{self.title}'
 
 
 class Match(db.Model, BaseManager):
@@ -78,6 +44,7 @@ class Match(db.Model, BaseManager):
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     scoreboard = db.relationship('MatchPlayer', backref='match', lazy=True)
     server_id = db.Column(db.Integer, db.ForeignKey('server.id'), nullable=False)
+    server = db.relationship('Server', backref=db.backref('matches', lazy='dynamic'))
 
     def __init__(self, data):
         """Match model constructor."""

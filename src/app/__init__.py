@@ -18,6 +18,9 @@ def create_app(config_name):
 
     db.init_app(app)
 
+    from .views.shooter import shooter_api
+    app.register_blueprint(shooter_api, url_prefix='/servers')
+
     return app
 
 

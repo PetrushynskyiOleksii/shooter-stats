@@ -1,5 +1,7 @@
 """Shooter stats database models."""
 
+from app import db
+
 
 class BaseManager(object):
     """Base query manager."""

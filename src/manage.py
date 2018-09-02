@@ -16,7 +16,15 @@ manager = Manager(app)
 # Example usage: python manage.py db init
 manager.add_command('db', MigrateCommand)
 
+
+@manager.command
+def routes():
+    """Return list of all existing endpoints."""
+    import pprint
+    pprint.pprint(list(map(lambda x: repr(x), app.url_map.iter_rules())))
+
 # TODO: test command
+
 
 if __name__ == '__main__':
     manager.run()
