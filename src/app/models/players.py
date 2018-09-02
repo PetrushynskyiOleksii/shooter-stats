@@ -31,7 +31,7 @@ class Player(db.Model):
     __tablename__ = 'players'
 
     id = db.Column(db.Integer, primary_key=True)
-    nickname = db.Column(db.String(128), nullable=False)
+    nickname = db.Column(db.String(128), nullable=False, unique=True)
     kills = db.Column(db.Integer, nullable=False, default=0)
     deaths = db.Integer(db.Integer, nullable=False, default=0)
     assists = db.Integer(db.Integer, nullable=False, default=0)
