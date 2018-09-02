@@ -15,7 +15,6 @@ class Player(db.Model):
     kills = db.Column(db.Integer, nullable=False, default=0)
     deaths = db.Column(db.Integer, nullable=False, default=0)
     assists = db.Column(db.Integer, nullable=False, default=0)
-    matches = db.relationship('MatchPlayer', backref='player', lazy=True)
 
     def __init__(self, data):
         """Player model constructor."""
@@ -44,6 +43,7 @@ class MatchPlayer(db.Model):
 
     player_id = db.Column(db.Integer, db.ForeignKey('player.id'),
                           nullable=False, primary_key=True)
+    player = db.relationship('Player', backref=db.backref('matches', lazy='dynamic'))
     match_id = db.Column(db.Integer, db.ForeignKey('match.id'), nullable=False)
     kills = db.Column(db.Integer, nullable=False)
     deaths = db.Column(db.Integer, nullable=False)

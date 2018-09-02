@@ -19,7 +19,6 @@ class Server(db.Model, BaseManager):
     endpoint = db.Column(db.String(128), nullable=False, unique=True)
     title = db.Column(db.String(64), nullable=False)
     mods = db.relationship('GameMod', secondary=mods, lazy='subquery')
-    matches = db.relationship('Match', backref='server', lazy=True)
 
     def __init__(self, data):
         """Post model constructor."""
@@ -77,6 +76,7 @@ class Match(db.Model, BaseManager):
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     scoreboard = db.relationship('MatchPlayer', backref='match', lazy=True)
     server_id = db.Column(db.Integer, db.ForeignKey('server.id'), nullable=False)
+    server = db.relationship('Server', backref=db.backref('matches', lazy='dynamic'))
 
     def __init__(self, data):
         """Match model constructor."""
