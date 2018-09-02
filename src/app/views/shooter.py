@@ -40,3 +40,14 @@ def get_servers():
     # Serialize the queryset
     response = servers_schema.dump(servers).data
     return jsonify(response), 200
+
+
+@shooter_api.route('/<string:endpoint>', methods=['GET'])
+def get_server(endpoint):
+    """Return single server instance with endpoint=`endpoint`."""
+    server = Server.query.filter_by(endpoint=endpoint).first()
+    if server is None:
+        return jsonify({'message': 'Server instance could not be found.'}), 400
+
+    response = server_schema.dump(server).data
+    return jsonify(response), 200
