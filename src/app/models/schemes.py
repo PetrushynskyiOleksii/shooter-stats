@@ -12,3 +12,4 @@ class ServerSchema(Schema):
 
 
 server_schema = ServerSchema()
+servers_schema = ServerSchema(many=True)

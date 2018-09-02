@@ -3,7 +3,7 @@
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
-from app.models.schemes import server_schema
+from app.models.schemes import server_schema, servers_schema
 from app.models.shooter import Server
 
 shooter_api = Blueprint('shooter', __name__)
@@ -31,3 +31,12 @@ def create_server():
     response = server_schema.dump(server).data
 
     return jsonify(response), 201
+
+
+@shooter_api.route('/', methods=['GET'])
+def get_servers():
+    """Return all existing servers."""
+    servers = Server.query.all()
+    # Serialize the queryset
+    response = servers_schema.dump(servers).data
+    return jsonify(response), 200
