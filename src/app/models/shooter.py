@@ -75,7 +75,7 @@ class Match(db.Model, BaseManager):
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
-    # TODO: scoreboard (many to many - player)
+    scoreboard = db.relationship('MatchPlayer', backref='match', lazy=True)
     # TODO: server (foreign key - server)
 
     def __init__(self, data):

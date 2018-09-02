@@ -44,6 +44,7 @@ class MatchPlayer(db.Model):
 
     player_id = db.Column(db.Integer, db.ForeignKey('player.id'),
                           nullable=False, primary_key=True)
+    match_id = db.Column(db.Integer, db.ForeignKey('match.id'), nullable=False)
     kills = db.Column(db.Integer, nullable=False)
     deaths = db.Column(db.Integer, nullable=False)
     assists = db.Column(db.Integer, nullable=False)
