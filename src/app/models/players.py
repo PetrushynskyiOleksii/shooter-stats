@@ -10,11 +10,11 @@ class MatchPlayer(db.Model):
 
     __tablename__ = 'match_players'
 
-    id = db.Column(db.Integer, primary_key=True)
-    player_id = db.Column(db.Integer, db.ForeignKey('player.id'), nullable=False)
+    player_id = db.Column(db.Integer, db.ForeignKey('player.id'),
+                          nullable=False, primary_key=True)
     kills = db.Column(db.Integer, nullable=False)
-    deaths = db.Integer(db.Integer, nullable=False)
-    assists = db.Integer(db.Integer, nullable=False)
+    deaths = db.Column(db.Integer, nullable=False)
+    assists = db.Column(db.Integer, nullable=False)
 
     def __init__(self, data):
         """Match player model constructor."""
@@ -33,8 +33,8 @@ class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nickname = db.Column(db.String(128), nullable=False, unique=True)
     kills = db.Column(db.Integer, nullable=False, default=0)
-    deaths = db.Integer(db.Integer, nullable=False, default=0)
-    assists = db.Integer(db.Integer, nullable=False, default=0)
+    deaths = db.Column(db.Integer, nullable=False, default=0)
+    assists = db.Column(db.Integer, nullable=False, default=0)
     matches = db.relationship('MatchPlayer', backref='player', lazy=True)
 
     def __init__(self, data):
