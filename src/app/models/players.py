@@ -3,32 +3,12 @@
 from app import db
 
 
-class MatchPlayer(db.Model):
-    """Match player database representation."""
-
-    # TODO: abstract class
-
-    __tablename__ = 'match_players'
-
-    player_id = db.Column(db.Integer, db.ForeignKey('player.id'),
-                          nullable=False, primary_key=True)
-    kills = db.Column(db.Integer, nullable=False)
-    deaths = db.Column(db.Integer, nullable=False)
-    assists = db.Column(db.Integer, nullable=False)
-
-    def __init__(self, data):
-        """Match player model constructor."""
-        self.kills = data.get('kills')
-        self.deaths = data.get('deaths')
-        self.assists = data.get('assists')
-
-
 class Player(db.Model):
     """Player database representation."""
 
     # TODO: abstract class
 
-    __tablename__ = 'players'
+    __tablename__ = 'player'
 
     id = db.Column(db.Integer, primary_key=True)
     nickname = db.Column(db.String(128), nullable=False, unique=True)
@@ -53,3 +33,23 @@ class Player(db.Model):
         """Return KDA value."""
         # TODO
         pass
+
+
+class MatchPlayer(db.Model):
+    """Match player database representation."""
+
+    # TODO: abstract class
+
+    __tablename__ = 'match_player'
+
+    player_id = db.Column(db.Integer, db.ForeignKey('player.id'),
+                          nullable=False, primary_key=True)
+    kills = db.Column(db.Integer, nullable=False)
+    deaths = db.Column(db.Integer, nullable=False)
+    assists = db.Column(db.Integer, nullable=False)
+
+    def __init__(self, data):
+        """Match player model constructor."""
+        self.kills = data.get('kills')
+        self.deaths = data.get('deaths')
+        self.assists = data.get('assists')

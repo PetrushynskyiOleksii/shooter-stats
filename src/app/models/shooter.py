@@ -6,7 +6,7 @@ from . import BaseManager
 
 mods = db.Table(
     'mods',
-    db.Column('gamemod_id', db.Integer, db.ForeignKey('gamemod.id'), primary_key=True),
+    db.Column('game_mod_id', db.Integer, db.ForeignKey('game_mod.id'), primary_key=True),
     db.Column('server_id', db.Integer, db.ForeignKey('server.id'), primary_key=True)
 )
 
@@ -14,7 +14,7 @@ mods = db.Table(
 class Server(db.Model, BaseManager):
     """Server database representation."""
 
-    __tablename__ = 'servers'
+    __tablename__ = 'server'
 
     id = db.Column(db.Integer, primary_key=True)
     endpoint = db.Column(db.String(128), nullable=False, unique=True)
@@ -44,7 +44,7 @@ class Server(db.Model, BaseManager):
 class GameMod(db.Model, BaseManager):
     """Server database representation."""
 
-    __tablename__ = 'game_mods'
+    __tablename__ = 'game_mod'
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(10), nullable=False, unique=True)
@@ -68,7 +68,7 @@ class GameMod(db.Model, BaseManager):
 class Match(db.Model, BaseManager):
     """Match database representation."""
 
-    __tablename__ = 'matches'
+    __tablename__ = 'match'
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(48), nullable=False)
