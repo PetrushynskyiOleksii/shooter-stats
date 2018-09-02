@@ -5,6 +5,7 @@ from marshmallow import ValidationError
 
 from app.models.schemes import server_schema, servers_schema
 from app.models.shooter import Server
+from app import db
 
 shooter_api = Blueprint('shooter', __name__)
 
@@ -42,12 +43,18 @@ def get_servers():
     return jsonify(response), 200
 
 
-@shooter_api.route('/<string:endpoint>', methods=['GET'])
-def get_server(endpoint):
+@shooter_api.route('/<string:endpoint>', methods=['GET', 'PATCH'])
+def get_or_update_server(endpoint):
     """Return single server instance with endpoint=`endpoint`."""
     server = Server.query.filter_by(endpoint=endpoint).first()
     if server is None:
         return jsonify({'message': 'Server instance could not be found.'}), 400
+
+    if request.method == 'PATCH':
+        # Update server instance
+        json_data = request.get_json()
+        server.title = json_data.get('title', server.title)
+        db.session.commit()
 
     response = server_schema.dump(server).data
     return jsonify(response), 200
