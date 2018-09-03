@@ -40,6 +40,7 @@ def create_or_list_servers():
         # Create a new server instance
         server = Server(data)
         server.save()
+
         response = server_schema.dump(server).data
         status_code = 201
 
@@ -63,31 +64,33 @@ def get_or_update_server(endpoint):
     return jsonify(response), 200
 
 
-@shooter_api.route('/<string:endpoint>/matches', methods=['GET'])
-def get_matches(endpoint):
-    """Return all existing matches of server in database."""
-    matches = db.session.query(Match).join(Server).filter(Server.endpoint == endpoint).all()
-    # Serialize the queryset
-    response = matches_schema.dump(matches).data
+@shooter_api.route('/<string:endpoint>/matches', methods=['GET', 'POST'])
+def create_or_list_matches(endpoint):
+    """Create new match instance or return matches list."""
+    if request.method == 'GET':
+        # Query all existing matches for specify server
+        matches = db.session.query(Match).join(Server).filter(
+            Server.endpoint == endpoint
+        ).all()
+        # Serialize the queryset
+        response = matches_schema.dump(matches).data
+        status_code = 200
 
-    return jsonify(response), 200
+    else:
+        json_data = request.get_json()
+        if not json_data:
+            return jsonify({'error': 'No input data provided.'}), 400
+        # Validate and deserialize input
+        try:
+            data = match_schema.load(json_data).data
+        except ValidationError as err:
+            return jsonify(err.messages), 400
 
+        data['server_endpoint'] = endpoint
+        match = Match(data)
+        match.save()
 
-@shooter_api.route('/<string:endpoint>/matches', methods=['POST'])
-def create_match(endpoint):
-    """Create new match instance."""
-    json_data = request.get_json()
-    if not json_data:
-        return jsonify({'error': 'No input data provided.'}), 400
-    # Validate and deserialize input
-    try:
-        data = match_schema.load(json_data).data
-    except ValidationError as err:
-        return jsonify(err.messages), 400
+        response = match_schema.dump(match).data
+        status_code = 201
 
-    data['server_endpoint'] = endpoint
-    match = Match(data)
-    match.save()
-    response = match_schema.dump(match).data
-
-    return jsonify(response), 201
+    return jsonify(response), status_code
