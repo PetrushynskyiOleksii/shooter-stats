@@ -10,37 +10,37 @@ from app import db
 shooter_api = Blueprint('shooter', __name__)
 
 
-@shooter_api.route('/', methods=['POST'])
-def create_server():
-    """Create new server instance."""
-    json_data = request.get_json()
-    if not json_data:
-        return jsonify({'error': 'No input data provided.'}), 400
-    # Validate and deserialize input
-    try:
-        data = server_schema.load(json_data).data
-    except ValidationError as err:
-        return jsonify(err.messages), 400
+@shooter_api.route('/', methods=['POST', 'GET'])
+def create_or_list_servers():
+    """Create new server instance or return servers list."""
+    if request.method == 'GET':
+        # Query all existing servers
+        servers = Server.query.all()
+        # Serialize the queryset
+        response = servers_schema.dump(servers).data
+        status_code = 200
 
-    server = Server.query.filter_by(endpoint=data.get('endpoint')).first()
-    if server:
-        return jsonify({'error': 'This endpoint already exists.'}), 400
+    else:
+        json_data = request.get_json()
+        if not json_data:
+            return jsonify({'error': 'No input data provided.'}), 400
+        # Validate and deserialize input
+        try:
+            data = server_schema.load(json_data).data
+        except ValidationError as err:
+            return jsonify(err.messages), 400
 
-    # Create a new server instance
-    server = Server(data)
-    server.save()
-    response = server_schema.dump(server).data
+        server = Server.query.filter_by(endpoint=data.get('endpoint')).first()
+        if server:
+            return jsonify({'error': 'This endpoint already exists.'}), 400
 
-    return jsonify(response), 201
+        # Create a new server instance
+        server = Server(data)
+        server.save()
+        response = server_schema.dump(server).data
+        status_code = 201
 
-
-@shooter_api.route('/', methods=['GET'])
-def get_servers():
-    """Return all existing servers."""
-    servers = Server.query.all()
-    # Serialize the queryset
-    response = servers_schema.dump(servers).data
-    return jsonify(response), 200
+    return jsonify(response), status_code
 
 
 @shooter_api.route('/<string:endpoint>', methods=['GET', 'PATCH'])
