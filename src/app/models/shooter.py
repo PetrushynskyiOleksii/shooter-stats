@@ -6,10 +6,9 @@ from . import db, BaseManager
 class Server(db.Model, BaseManager):
     """Server database representation."""
 
-    __tablename__ = 'server'
+    __tablename__ = 'servers'
 
-    id = db.Column(db.Integer, primary_key=True)
-    endpoint = db.Column(db.String(128), nullable=False, unique=True)
+    endpoint = db.Column(db.String(64), nullable=False, primary_key=True)
     title = db.Column(db.String(64), nullable=False)
 
     def __init__(self, data):
@@ -25,14 +24,14 @@ class Server(db.Model, BaseManager):
 class Match(db.Model, BaseManager):
     """Match database representation."""
 
-    __tablename__ = 'match'
+    __tablename__ = 'matches'
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(48), nullable=False)
     start_time = db.Column(db.DateTime, nullable=False)
-    end_time = db.Column(db.DateTime)
+    end_time = db.Column(db.DateTime, nullable=False)
     scoreboard = db.relationship('MatchPlayer', backref='match', lazy=True)
-    server_id = db.Column(db.Integer, db.ForeignKey('server.id'), nullable=False)
+    server_endpoint = db.Column(db.String(64), db.ForeignKey('servers.endpoint'))
     server = db.relationship('Server', backref=db.backref('matches', lazy='dynamic'))
 
     def __init__(self, data):

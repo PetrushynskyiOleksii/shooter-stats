@@ -6,7 +6,6 @@ from marshmallow import Schema, fields
 class ServerSchema(Schema):
     """Serializer schema for server JSON representation."""
 
-    id = fields.Integer(dump_only=True)  # read only field
     endpoint = fields.Str(required=True)  # TODO: validation
     title = fields.Str(required=True)
 
@@ -20,7 +19,7 @@ class MatchServer(Schema):
 
     id = fields.Int(dump_only=True)
     title = fields.Str(required=True)
-    server = fields.Nested(ServerSchema, required=True)
+    server = fields.Nested(ServerSchema, dump_only=True)
     start_time = fields.DateTime(required=True)
     end_time = fields.DateTime(required=True)
 
@@ -28,4 +27,5 @@ class MatchServer(Schema):
     # TODO: preload elapsed time
 
 
+match_schema = MatchServer()
 matches_schema = MatchServer(many=True)
