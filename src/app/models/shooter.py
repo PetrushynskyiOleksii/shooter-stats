@@ -41,7 +41,6 @@ class Match(db.Model, BaseManager):
     title = db.Column(db.String(48), nullable=False)
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime)
-    is_active = db.Column(db.Boolean, nullable=False, default=True)
     scoreboard = db.relationship('MatchPlayer', backref='match', lazy=True)
     server_id = db.Column(db.Integer, db.ForeignKey('server.id'), nullable=False)
     server = db.relationship('Server', backref=db.backref('matches', lazy='dynamic'))
