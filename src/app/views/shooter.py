@@ -3,9 +3,12 @@
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
-from app.models.schemes import server_schema, servers_schema, matches_schema
-from app.models.shooter import Server, Match
 from app import db
+from app.models.shooter import Server, Match
+from app.models.schemes import (
+    server_schema, servers_schema,
+    matches_schema, match_schema
+)
 
 shooter_api = Blueprint('shooter', __name__)
 
@@ -68,3 +71,23 @@ def get_matches(endpoint):
     response = matches_schema.dump(matches).data
 
     return jsonify(response), 200
+
+
+@shooter_api.route('/<string:endpoint>/matches', methods=['POST'])
+def create_match(endpoint):
+    """Create new match instance."""
+    json_data = request.get_json()
+    if not json_data:
+        return jsonify({'error': 'No input data provided.'}), 400
+    # Validate and deserialize input
+    try:
+        data = match_schema.load(json_data).data
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
+    data['server_endpoint'] = endpoint
+    match = Match(data)
+    match.save()
+    response = match_schema.dump(match).data
+
+    return jsonify(response), 201
