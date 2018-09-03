@@ -32,7 +32,7 @@ def create_or_list_servers():
 
         server = Server.query.filter_by(endpoint=data.get('endpoint')).first()
         if server:
-            return jsonify({'error': 'This endpoint already exists.'}), 400
+            return jsonify({'error': 'Server with this endpoint already exists.'}), 400
 
         # Create a new server instance
         server = Server(data)
