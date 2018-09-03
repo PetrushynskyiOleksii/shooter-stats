@@ -38,6 +38,8 @@ class Match(db.Model, BaseManager):
         """Match model constructor."""
         self.title = data.get('title')
         self.start_time = data.get('start_time')
+        self.end_time = data.get('end_time')
+        self.server_endpoint = data.get('server_endpoint')
 
     def __repr__(self):
         """Return match instance as a string."""
