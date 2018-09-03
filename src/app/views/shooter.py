@@ -3,8 +3,8 @@
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
-from app.models.schemes import server_schema, servers_schema
-from app.models.shooter import Server
+from app.models.schemes import server_schema, servers_schema, matches_schema
+from app.models.shooter import Server, Match
 from app import db
 
 shooter_api = Blueprint('shooter', __name__)
@@ -46,9 +46,9 @@ def create_or_list_servers():
 @shooter_api.route('/<string:endpoint>', methods=['GET', 'PATCH'])
 def get_or_update_server(endpoint):
     """Return single server instance with endpoint=`endpoint`."""
-    server = Server.query.filter_by(endpoint=endpoint).first()
+    server = Server.query.filter_by(endpoint=endpoint).first()  # TODO: get or 404
     if server is None:
-        return jsonify({'message': 'Server instance could not be found.'}), 400
+        return jsonify({'message': 'Server instance could not be found.'}), 404
 
     if request.method == 'PATCH':
         # Update server instance
@@ -57,4 +57,14 @@ def get_or_update_server(endpoint):
         db.session.commit()
 
     response = server_schema.dump(server).data
+    return jsonify(response), 200
+
+
+@shooter_api.route('/<string:endpoint>/matches', methods=['GET'])
+def get_matches(endpoint):
+    """Return all existing matches of server in database."""
+    matches = db.session.query(Match).join(Server).filter(Server.endpoint == endpoint).all()
+    # Serialize the queryset
+    response = matches_schema.dump(matches).data
+
     return jsonify(response), 200
