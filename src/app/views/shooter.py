@@ -64,6 +64,13 @@ def get_or_update_server(endpoint):
     return jsonify(response), 200
 
 
+@shooter_api.route('/<string:endpoint>/players', methods=['GET', 'PATCH'])
+def get_server_players(endpoint):
+    """Return list of players on server."""
+    # TODO:
+    pass
+
+
 @shooter_api.route('/<string:endpoint>/matches', methods=['GET', 'POST'])
 def create_or_list_matches(endpoint):
     """Create new match instance or return matches list."""
