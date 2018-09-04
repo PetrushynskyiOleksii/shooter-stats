@@ -3,6 +3,23 @@
 from marshmallow import Schema, fields
 
 
+class PlayerSchema(Schema):
+    """Serializer schema for player JSON representation."""
+
+    # TODO: add order property in meta class
+
+    id = fields.Int(dump_only=True)
+    nickname = fields.Str(required=True)
+    kills = fields.Int()
+    deaths = fields.Int()
+    assists = fields.Int()
+
+    # TODO: pre dump KDA property
+
+
+players_schema = PlayerSchema(many=True)
+
+
 class ServerSchema(Schema):
     """Serializer schema for server JSON representation."""
 
