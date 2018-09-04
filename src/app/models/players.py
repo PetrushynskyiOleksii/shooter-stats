@@ -10,8 +10,7 @@ class Player(db.Model):
 
     __tablename__ = 'players'
 
-    id = db.Column(db.Integer, primary_key=True)
-    nickname = db.Column(db.String(128), nullable=False, unique=True)
+    nickname = db.Column(db.String(128), nullable=False, primary_key=True)
     kills = db.Column(db.Integer, nullable=False, default=0)
     deaths = db.Column(db.Integer, nullable=False, default=0)
     assists = db.Column(db.Integer, nullable=False, default=0)
@@ -41,8 +40,8 @@ class MatchPlayer(db.Model):
 
     __tablename__ = 'match_players'
 
-    player_id = db.Column(db.Integer, db.ForeignKey('players.id'),
-                          nullable=False, primary_key=True)
+    player_nickname = db.Column(db.String(128), db.ForeignKey('players.nickname'),
+                                nullable=False, primary_key=True)
     player = db.relationship('Player', backref=db.backref('matches', lazy='dynamic'))
     match_id = db.Column(db.Integer, db.ForeignKey('matches.id'), nullable=False)
     kills = db.Column(db.Integer, nullable=False)

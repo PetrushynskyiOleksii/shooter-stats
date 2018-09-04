@@ -8,7 +8,6 @@ class PlayerSchema(Schema):
 
     # TODO: add order property in meta class
 
-    id = fields.Int(dump_only=True)
     nickname = fields.Str(required=True)
     kills = fields.Int()
     deaths = fields.Int()
