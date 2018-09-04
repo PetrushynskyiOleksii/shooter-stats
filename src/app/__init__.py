@@ -21,6 +21,9 @@ def create_app(config_name):
     from .views.shooter import shooter_api
     app.register_blueprint(shooter_api, url_prefix='/servers')
 
+    from .views.players import players_api
+    app.register_blueprint(players_api, url_prefix='/players')
+
     return app
 
 
