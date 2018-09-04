@@ -94,3 +94,14 @@ def create_or_list_matches(endpoint):
         status_code = 201
 
     return jsonify(response), status_code
+
+
+@shooter_api.route('/<string:endpoint>/matches/<int:id>', methods=['GET'])
+def get_match(endpoint, id):  # FIXME: endpoint arg
+    """Return single match instance in JSON representation."""
+    match = Match.query.get(id)  # TODO: get or 404
+    if match is None:
+        return jsonify({'message': 'Match instance could not be found.'}), 404
+
+    response = match_schema.dump(match).data
+    return jsonify(response), 200
