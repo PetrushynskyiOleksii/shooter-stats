@@ -17,6 +17,7 @@ class PlayerSchema(Schema):
 
 
 players_schema = PlayerSchema(many=True)
+player_schema = PlayerSchema()
 
 
 class ServerSchema(Schema):
@@ -38,9 +39,9 @@ class MatchServer(Schema):
     server = fields.Nested(ServerSchema, dump_only=True)
     start_time = fields.DateTime(required=True)
     end_time = fields.DateTime(required=True)
-
-    # scoreboard = db.relationship('MatchPlayer', backref='match', lazy=True)
+    scoreboard = fields.Nested(PlayerSchema, many=True)
     # TODO: preload elapsed time
+    # TODO: validate time -> end_time>start_time
 
 
 match_schema = MatchServer()
