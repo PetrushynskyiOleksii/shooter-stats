@@ -31,7 +31,7 @@ server_schema = ServerSchema()
 servers_schema = ServerSchema(many=True)
 
 
-class MatchServer(Schema):
+class MatchSchema(Schema):
     """Serializer schema for match JSON representation."""
 
     id = fields.Int(dump_only=True)
@@ -44,5 +44,5 @@ class MatchServer(Schema):
     # TODO: validate time -> end_time>start_time
 
 
-match_schema = MatchServer()
-matches_schema = MatchServer(many=True)
+match_schema = MatchSchema()
+matches_schema = MatchSchema(many=True)  # FIXME

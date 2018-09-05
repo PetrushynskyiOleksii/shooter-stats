@@ -20,7 +20,7 @@ def create_or_list_servers():
         # Query all existing servers
         servers = Server.query.all()
         # Serialize the queryset
-        response = servers_schema.dump(servers).data
+        response = servers_schema.dump(servers)
         status_code = 200
 
     else:
@@ -29,7 +29,7 @@ def create_or_list_servers():
             return jsonify({'error': 'No input data provided.'}), 400
         # Validate and deserialize input
         try:
-            data = server_schema.load(json_data).data
+            data = server_schema.load(json_data)
         except ValidationError as err:
             return jsonify(err.messages), 400
 
@@ -41,7 +41,7 @@ def create_or_list_servers():
         server = Server(data)
         server.save()
 
-        response = server_schema.dump(server).data
+        response = server_schema.dump(server)
         status_code = 201
 
     return jsonify(response), status_code
@@ -60,7 +60,7 @@ def get_or_update_server(endpoint):
         server.title = json_data.get('title', server.title)
         db.session.commit()
 
-    response = server_schema.dump(server).data
+    response = server_schema.dump(server)
     return jsonify(response), 200
 
 
@@ -71,36 +71,15 @@ def get_server_players(endpoint):
     pass
 
 
-@shooter_api.route('/<string:endpoint>/matches', methods=['GET', 'POST'])
-def create_or_list_matches(endpoint):
-    """Create new match instance or return matches list."""
-    if request.method == 'GET':
-        # Query all existing matches for specify server
-        matches = db.session.query(Match).join(Server).filter(
-            Server.endpoint == endpoint
-        ).all()
-        # Serialize the queryset
-        response = matches_schema.dump(matches).data
-        status_code = 200
+@shooter_api.route('/<string:endpoint>/matches', methods=['GET'])
+def get_matches(endpoint):
+    """Return all existing matches for a specify server."""
+    matches = db.session.query(Match).join(Server).filter(  # TODO: improve query
+        Server.endpoint == endpoint
+    ).all()
+    response = matches_schema.dump(matches)
 
-    else:
-        json_data = request.get_json()
-        if not json_data:
-            return jsonify({'error': 'No input data provided.'}), 400
-        # Validate and deserialize input
-        try:
-            data = match_schema.load(json_data).data
-        except ValidationError as err:
-            return jsonify(err.messages), 400
-
-        data['server_endpoint'] = endpoint
-        match = Match(data)
-        match.save()
-
-        response = match_schema.dump(match).data
-        status_code = 201
-
-    return jsonify(response), status_code
+    return jsonify(response.data), 200
 
 
 @shooter_api.route('/<string:endpoint>/matches/<int:id>', methods=['GET'])
@@ -110,5 +89,27 @@ def get_match(endpoint, id):  # FIXME: endpoint arg
     if match is None:
         return jsonify({'message': 'Match instance could not be found.'}), 404
 
-    response = match_schema.dump(match).data
+    response = match_schema.dump(match)
     return jsonify(response), 200
+
+
+@shooter_api.route('/<string:endpoint>/matches/<int:id>', methods=['POST'])
+def create_match(endpoint):
+    """Create a new match instance."""
+    json_data = request.get_json()
+    if not json_data:
+        return jsonify({'error': 'No input data provided.'}), 400
+
+    # Validate and deserialize input
+    try:
+        data = match_schema.load(json_data).data
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
+    data['server_endpoint'] = endpoint
+    match = Match(data)
+    match.save()
+
+    response = match_schema.dump(match)
+
+    return jsonify(response.data), 201
