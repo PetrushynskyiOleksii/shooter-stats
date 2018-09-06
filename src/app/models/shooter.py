@@ -21,6 +21,15 @@ class Server(db.Model, BaseManager):
         return f'{self.title} ({self.id})'
 
 
+scoreboards = db.Table(
+    'scoreboards',
+    db.Column('match_id', db.Integer, db.ForeignKey('matches.id'), primary_key=True),
+    db.Column('player_nickname', db.String(128),
+              db.ForeignKey('players.nickname'), primary_key=True
+              )
+)
+
+
 class Match(db.Model, BaseManager):
     """Match database representation."""
 
@@ -30,9 +39,10 @@ class Match(db.Model, BaseManager):
     title = db.Column(db.String(48), nullable=False)
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
-    scoreboard = db.relationship('MatchPlayer', backref='match', lazy=True)
     server_endpoint = db.Column(db.String(64), db.ForeignKey('servers.endpoint'))
-    server = db.relationship('Server', backref=db.backref('matches', lazy='dynamic'))
+    server = db.relationship('Server', backref=db.backref('matches', lazy='subquery'))
+    scoreboard = db.relationship('Player', secondary=scoreboards, lazy='subquery',
+                                 backref=db.backref('matches', lazy=True))
 
     def __init__(self, data):
         """Match model constructor."""

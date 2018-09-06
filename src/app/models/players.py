@@ -6,14 +6,13 @@ from . import db
 class Player(db.Model):
     """Player database representation."""
 
-    # TODO: abstract class
-
     __tablename__ = 'players'
 
     nickname = db.Column(db.String(128), nullable=False, primary_key=True)
     kills = db.Column(db.Integer, nullable=False, default=0)
     deaths = db.Column(db.Integer, nullable=False, default=0)
     assists = db.Column(db.Integer, nullable=False, default=0)
+    match_id = db.Column(db.Integer, db.ForeignKey('matches.id'), nullable=False)
 
     def __init__(self, data):
         """Player model constructor."""
@@ -31,25 +30,3 @@ class Player(db.Model):
         """Return KDA value."""
         # TODO
         pass
-
-
-class MatchPlayer(db.Model):
-    """Match player database representation."""
-
-    # TODO: abstract class
-
-    __tablename__ = 'match_players'
-
-    player_nickname = db.Column(db.String(128), db.ForeignKey('players.nickname'),
-                                nullable=False, primary_key=True)
-    player = db.relationship('Player', backref=db.backref('matches', lazy='dynamic'))
-    match_id = db.Column(db.Integer, db.ForeignKey('matches.id'), nullable=False)
-    kills = db.Column(db.Integer, nullable=False)
-    deaths = db.Column(db.Integer, nullable=False)
-    assists = db.Column(db.Integer, nullable=False)
-
-    def __init__(self, data):
-        """Match player model constructor."""
-        self.kills = data.get('kills')
-        self.deaths = data.get('deaths')
-        self.assists = data.get('assists')
