@@ -1,11 +1,10 @@
 """Collection of game statistic endpoints."""
 
-from flask import Blueprint, jsonify, request
+from flask import jsonify, request
 
 from app.models.players import Player
 from app.models.schemes import players_schema
-
-players_api = Blueprint('players', __name__)
+from . import players_api
 
 
 @players_api.route('/', methods=['GET'])
