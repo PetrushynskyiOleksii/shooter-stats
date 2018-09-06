@@ -4,6 +4,7 @@ from flask import jsonify, request
 from marshmallow import ValidationError
 
 from app import db
+from app.models.players import Player
 from app.models.shooter import Server, Match
 from app.models.schemes import matches_schema, match_schema
 from . import shooter_api
@@ -31,23 +32,35 @@ def get_match(endpoint, id):  # FIXME: endpoint arg
     return jsonify(response), 200
 
 
-@shooter_api.route('/<string:endpoint>/matches/<int:id>', methods=['POST'])
+@shooter_api.route('/<string:endpoint>/matches', methods=['POST'])
 def create_match(endpoint):
     """Create a new match instance."""
     json_data = request.get_json()
     if not json_data:
         return jsonify({'error': 'No input data provided.'}), 400
 
-    # Validate and deserialize input
+    # Validate and deserialize  input
     try:
         data = match_schema.load(json_data).data
     except ValidationError as err:
         return jsonify(err.messages), 400
 
+    # Create new match
     data['server_endpoint'] = endpoint
     match = Match(data)
-    match.save()
 
+    # Update players data
+    for player in data.get('scoreboard'):
+        player_for_upd = db.session.query(Player).filter(
+            Player.nickname == player.get('nickname')
+        ).with_for_update().one()
+        player_for_upd.kills += player.get('kills')
+        player_for_upd.deaths += player.get('deaths')
+        player_for_upd.assists += player.get('assists')
+
+        match.scoreboard.append(player_for_upd)
+
+    match.save()
     response = match_schema.dump(match)
 
     return jsonify(response.data), 201
