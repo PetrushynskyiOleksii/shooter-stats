@@ -43,7 +43,7 @@ class MatchSchema(Schema):
 
     id = fields.Int(dump_only=True)
     title = fields.Str(required=True)
-    server = fields.Nested(ServerSchema, dump_only=True)
+    server_endpoint = fields.Nested(ServerSchema, only='endpoint', dump_only=True, attribute='server')
     start_time = fields.DateTime(required=True)
     end_time = fields.DateTime(required=True)
     elapsed_time = fields.Method('get_elapsed_time', dump_only=True)
