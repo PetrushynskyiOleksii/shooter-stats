@@ -12,13 +12,36 @@ class Server(db.Model, BaseManager):
     title = db.Column(db.String(64), nullable=False)
 
     def __init__(self, data):
-        """Post model constructor."""
+        """Server model constructor."""
         self.endpoint = data.get('endpoint')
         self.title = data.get('title')
+
+        self._save()
 
     def __repr__(self):
         """Return server instance as a string."""
         return f'{self.title} ({self.id})'
+
+
+class Player(db.Model, BaseManager):
+    """Player database representation."""
+
+    __tablename__ = 'players'
+
+    nickname = db.Column(db.String(128), nullable=False, primary_key=True)
+    kills = db.Column(db.Integer, nullable=False, default=0)
+    deaths = db.Column(db.Integer, nullable=False, default=0)
+    assists = db.Column(db.Integer, nullable=False, default=0)
+
+    def __init__(self, data):
+        """Player model constructor."""
+        self.nickname = data.get('nickname')
+
+        self._save()
+
+    def __repr__(self):
+        """Return player instance as a string."""
+        return f'{self.nickname}'
 
 
 scoreboards = db.Table(
