@@ -15,8 +15,8 @@ server_schema = ServerSchema()
 def get_servers():
     """Retrieve all existing servers from database."""
     servers = db.session.query(Server).all()
-    response = server_schema.dump(servers, many=True)
 
+    response = server_schema.dump(servers, many=True)
     return jsonify(response.data), 200
 
 
@@ -33,9 +33,7 @@ def create_server():
     except ValidationError as err:
         return jsonify(err.messages), 400
 
-    server = db.session.query(Server).filter(
-        Server.endpoint == data.get('endpoint')
-    ).first()
+    server = Server.get_by_endpoint(data.get('endpoint'))
     if server:
         return jsonify({'error': 'Server with this endpoint already exists.'}), 400
 
@@ -43,14 +41,13 @@ def create_server():
     server = Server(data)
 
     response = server_schema.dump(server)
-
     return jsonify(response.data), 201
 
 
 @shooter_api.route('/<string:endpoint>', methods=['GET', 'PATCH'])
 def get_or_update_server(endpoint):
     """Retrieve or update single server instance in database."""
-    server = db.session.query(Server).filter(Server.endpoint == endpoint).first()
+    server = Server.get_by_endpoint(endpoint)
     if server is None:
         return jsonify({'message': 'Server instance could not be found.'}), 404
 

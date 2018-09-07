@@ -31,6 +31,12 @@ class Server(db.Model, BaseManager):
         """Return server instance as a string."""
         return f'{self.title} ({self.id})'
 
+    @classmethod
+    def get_by_endpoint(cls, endpoint):
+        """Retrieve single server instance."""
+        server = db.session.query(cls).filter(cls.endpoint == endpoint).first()
+        return server
+
 
 class Player(db.Model, BaseManager):
     """Player database representation."""
