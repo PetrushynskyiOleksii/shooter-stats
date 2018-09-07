@@ -33,9 +33,23 @@ class Server(db.Model, BaseManager):
 
     @classmethod
     def get_by_endpoint(cls, endpoint):
-        """Retrieve single server instance."""
+        """Retrieve single server instance from database."""
         server = db.session.query(cls).filter(cls.endpoint == endpoint).first()
         return server
+
+    @classmethod
+    def get_all(cls):
+        """Retrieve all existing servers from database."""
+        servers = db.session.query(cls).all()
+        return servers
+
+    def update(self, new_title):
+        """Update title of server."""
+        if self.title != new_title:
+            self.title = new_title
+            db.session.commit()
+
+        return self.title
 
 
 class Player(db.Model, BaseManager):

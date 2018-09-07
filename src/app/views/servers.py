@@ -14,7 +14,7 @@ server_schema = ServerSchema()
 @shooter_api.route('/', methods=['GET'])
 def get_servers():
     """Retrieve all existing servers from database."""
-    servers = db.session.query(Server).all()
+    servers = Server.get_all()
 
     response = server_schema.dump(servers, many=True)
     return jsonify(response.data), 200
@@ -54,8 +54,7 @@ def get_or_update_server(endpoint):
     if request.method == 'PATCH':
         # Update server instance
         json_data = request.get_json()
-        server.title = json_data.get('title', server.title)
-        db.session.commit()
+        server.update(json_data.get('title'))
 
     response = server_schema.dump(server)
     return jsonify(response.data), 200
