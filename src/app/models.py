@@ -72,6 +72,12 @@ class Player(db.Model, BaseManager):
         """Return player instance as a string."""
         return f'{self.nickname}'
 
+    @classmethod
+    def get_by_nickname(cls, nickname):
+        """Retrieve single player instance from database."""
+        player = db.session.query(cls).filter(cls.nickname == nickname).first()
+        return player
+
 
 scoreboards = db.Table(
     'scoreboards',

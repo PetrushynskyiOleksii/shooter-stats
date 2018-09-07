@@ -13,8 +13,8 @@ from . import players_api
 @players_api.route('/<string:nickname>', methods=['GET'])
 def get_player(nickname):
     """Retrieve single player instance from database."""
-    player = db.session.query(Player).filter(Player.nickname == nickname).first()
-    if player is None:  # TODO: 404_response()
+    player = Player.get_by_nickname(nickname)
+    if player is None:
         return jsonify({'message': 'Player instance could not be found.'}), 404
 
     response = player_schema.dump(player)
@@ -44,7 +44,7 @@ def create_player():
     except ValidationError as err:
         return jsonify(err.messages), 400
 
-    player = db.session.query(Player).filter(Player.nickname == data.get('nickname')).first()
+    player = Player.get_by_nickname(data.get('nickname'))
     if player:
         return jsonify({'error': 'Player with this nickname already exists.'}), 400
 
@@ -52,5 +52,4 @@ def create_player():
     player = Player(data)
 
     response = player_schema.dump(player)
-
     return jsonify(response.data), 201
