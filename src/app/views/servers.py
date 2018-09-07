@@ -4,8 +4,9 @@ from flask import jsonify, request
 from marshmallow import ValidationError
 
 from app import db
-from app.models.shooter import Server
-from app.models.schemes import servers_schema, server_schema
+from app.models.shooter import Server, Match
+from app.models.players import Player
+from app.models.schemes import servers_schema, server_schema, players_schema
 from . import shooter_api
 
 
@@ -25,7 +26,7 @@ def create_or_list_servers():
             return jsonify({'error': 'No input data provided.'}), 400
         # Validate and deserialize input
         try:
-            data = server_schema.load(json_data)
+            data = server_schema.load(json_data).data
         except ValidationError as err:
             return jsonify(err.messages), 400
 
@@ -40,7 +41,7 @@ def create_or_list_servers():
         response = server_schema.dump(server)
         status_code = 201
 
-    return jsonify(response), status_code
+    return jsonify(response.data), status_code
 
 
 @shooter_api.route('/<string:endpoint>', methods=['GET', 'PATCH'])
@@ -57,11 +58,15 @@ def get_or_update_server(endpoint):
         db.session.commit()
 
     response = server_schema.dump(server)
-    return jsonify(response), 200
+    return jsonify(response.data), 200
 
 
-@shooter_api.route('/<string:endpoint>/players', methods=['GET', 'PATCH'])
-def get_server_players(endpoint):
-    """Return list of players on server."""
-    # TODO:
-    pass
+@shooter_api.route('/<string:endpoint>/players', methods=['GET'])
+def get_top_server_killers(endpoint):
+    """Return list of top killers on server."""
+    players = db.session.query(Player).join(Player.matches).filter(
+        Match.server_endpoint == endpoint
+    ).order_by(Player.kills.desc()).all()[:25]
+
+    response = players_schema.dump(players)
+    return jsonify(response.data), 200
