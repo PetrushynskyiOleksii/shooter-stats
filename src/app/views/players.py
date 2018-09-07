@@ -1,10 +1,12 @@
 """Collection of game statistic endpoints."""
 
-from flask import jsonify
+from flask import jsonify, request
+from marshmallow import ValidationError
 
 from app import db
 from app.models.players import Player
 from app.models.schemes import player_schema
+
 from . import players_api
 
 
@@ -15,6 +17,31 @@ def get_player(nickname):
     if player is None:  # TODO: 404_response()
         return jsonify({'message': 'Player instance could not be found.'}), 404
 
-    print(player)
     response = player_schema.dump(player)
     return jsonify(response.data), 200
+
+
+@players_api.route('/', methods=['POST'])
+def create_player():
+    """Create new player instance."""
+    json_data = request.get_json()
+    if not json_data:
+        return jsonify({'error': 'No input data provided.'}), 400
+    # Validate and deserialize input
+    try:
+        data = player_schema.load(json_data).data
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
+    player = db.session.query(Player).filter(Player.nickname == data.get('nickname')).first()
+    if player:
+        return jsonify({'error': 'Player with this nickname already exists.'}), 400
+
+    # Create a new player instance
+    player = Player(data)
+    db.session.add(player)
+    db.session.commit()
+
+    response = player_schema.dump(player)
+
+    return jsonify(response.data), 201
