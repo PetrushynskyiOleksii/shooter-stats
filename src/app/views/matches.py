@@ -9,7 +9,7 @@ from app.schemes import matches_schema, match_schema
 from . import shooter_api
 
 
-@shooter_api.route('/<string:endpoint>/matches', methods=['GET'])
+@shooter_api.route('/servers/<string:endpoint>/matches', methods=['GET'])
 def get_matches(endpoint):
     """Return all existing matches for a specify server."""
     matches = db.session.query(Match).join(Server).filter(  # TODO: improve query
@@ -20,7 +20,7 @@ def get_matches(endpoint):
     return jsonify(response.data), 200
 
 
-@shooter_api.route('/<string:endpoint>/matches/<int:id>', methods=['GET'])
+@shooter_api.route('/servers/<string:endpoint>/matches/<int:id>', methods=['GET'])
 def get_match(endpoint, id):  # FIXME: endpoint arg
     """Return single match instance in JSON representation."""
     match = Match.query.get(id)  # TODO: get or 404
@@ -31,7 +31,7 @@ def get_match(endpoint, id):  # FIXME: endpoint arg
     return jsonify(response), 200
 
 
-@shooter_api.route('/<string:endpoint>/matches', methods=['POST'])
+@shooter_api.route('/servers/<string:endpoint>/matches', methods=['POST'])
 def create_match(endpoint):
     """Create a new match instance."""
     json_data = request.get_json()

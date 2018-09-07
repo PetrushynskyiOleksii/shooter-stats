@@ -11,7 +11,7 @@ from . import shooter_api
 server_schema = ServerSchema()
 
 
-@shooter_api.route('/', methods=['GET'])
+@shooter_api.route('/servers', methods=['GET'])
 def get_servers():
     """Retrieve all existing servers from database."""
     servers = Server.get_all()
@@ -20,7 +20,7 @@ def get_servers():
     return jsonify(response.data), 200
 
 
-@shooter_api.route('/', methods=['POST'])
+@shooter_api.route('/servers', methods=['POST'])
 def create_server():
     """Create new server instance."""
     json_data = request.get_json()
@@ -44,7 +44,7 @@ def create_server():
     return jsonify(response.data), 201
 
 
-@shooter_api.route('/<string:endpoint>', methods=['GET', 'PATCH'])
+@shooter_api.route('/servers/<string:endpoint>', methods=['GET', 'PATCH'])
 def get_or_update_server(endpoint):
     """Retrieve or update single server instance in database."""
     server = Server.get_by_endpoint(endpoint)
@@ -60,7 +60,7 @@ def get_or_update_server(endpoint):
     return jsonify(response.data), 200
 
 
-@shooter_api.route('/<string:endpoint>/players', methods=['GET'])
+@shooter_api.route('/servers/<string:endpoint>/players', methods=['GET'])
 def get_top_server_killers(endpoint):
     """Return list of top killers on server."""
     players = db.session.query(Player).join(Player.matches).filter(

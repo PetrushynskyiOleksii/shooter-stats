@@ -6,10 +6,10 @@ from marshmallow import ValidationError
 from app.models import Match, Player
 from app.schemes import player_schema, matches_schema
 
-from . import players_api
+from . import shooter_api
 
 
-@players_api.route('/<string:nickname>', methods=['GET'])
+@shooter_api.route('/players/<string:nickname>', methods=['GET'])
 def get_player(nickname):
     """Retrieve single player instance from database."""
     player = Player.get_by_nickname(nickname)
@@ -20,7 +20,7 @@ def get_player(nickname):
     return jsonify(response.data), 200
 
 
-@players_api.route('/<string:nickname>/matches', methods=['GET'])
+@shooter_api.route('/players/<string:nickname>/matches', methods=['GET'])
 def get_player_matches(nickname):
     """Retrieve player matches from database."""
     matches = Match.get_matches(nickname)
@@ -29,7 +29,7 @@ def get_player_matches(nickname):
     return jsonify(response.data), 200
 
 
-@players_api.route('/', methods=['POST'])
+@shooter_api.route('/players', methods=['POST'])
 def create_player():
     """Create new player instance."""
     json_data = request.get_json()
