@@ -3,8 +3,7 @@
 from flask import jsonify, request
 from marshmallow import ValidationError
 
-from app import db
-from app.models import Match, Player
+from app.models import Player
 from app.schemes import player_schema
 
 from . import shooter_api
@@ -44,12 +43,13 @@ def create_player():
     return jsonify(response.data), 201
 
 
-@shooter_api.route('/servers/<string:endpoint>/players', methods=['GET'])
-def get_top_server_killers(endpoint):
-    """Return list of top killers on server."""
-    players = db.session.query(Player).join(Player.matches).filter(
-        Match.server_endpoint == endpoint
-    ).order_by(Player.kills.desc()).all()[:25]
+@shooter_api.route('/servers/<string:endpoint>/top_players', methods=['GET'])
+def get_top_server_players(endpoint):
+    """Return list of top killers/suiciders/assisters on server."""
+    # TODO: check for exist endpoint
+    order_by = request.args.get('order_by', 'kills')
+    limit = int(request.args.get('limit', 25))
+    players = Player.get_top_server_players(endpoint, order_by=order_by, limit=limit)
 
     response = player_schema.dump(players, many=True)
     return jsonify(response.data), 200
