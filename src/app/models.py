@@ -104,7 +104,7 @@ scoreboards = db.Table(
 )
 
 
-class Match(db.Model, BaseManager):
+class Match(db.Model):
     """Match database representation."""
 
     __tablename__ = 'matches'
@@ -123,11 +123,16 @@ class Match(db.Model, BaseManager):
         self.title = data.get('title')
         self.start_time = data.get('start_time')
         self.end_time = data.get('end_time')
-        self.server_endpoint = data.get('server_endpoint')
+        self.server_endpoint = data.get('server')
 
     def __repr__(self):
         """Return match instance as a string."""
         return f'{self.title}'
+
+    def save(self):
+        """Save match instance to database."""
+        db.session.add(self)
+        db.session.commit()
 
     @classmethod
     def get_player_matches(cls, nickname):
@@ -136,3 +141,17 @@ class Match(db.Model, BaseManager):
             Player.nickname == nickname
         ).all()
         return matches
+
+    @classmethod
+    def get_server_matches(cls, endpoint):
+        """Retrieve server matches from database."""
+        matches = db.session.query(cls).join(Server).filter(  # TODO: improve query
+            Server.endpoint == endpoint
+        ).all()
+        return matches
+
+    @classmethod
+    def get(cls, id):
+        """Retrieve single match instance from database."""
+        match = db.session.query(cls).filter(cls.id == id).first()
+        return match

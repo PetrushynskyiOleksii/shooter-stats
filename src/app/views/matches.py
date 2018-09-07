@@ -4,7 +4,7 @@ from flask import jsonify, request
 from marshmallow import ValidationError
 
 from app import db
-from app.models import Server, Match, Player
+from app.models import Match, Player
 from app.schemes import match_schema
 from . import shooter_api
 
@@ -12,9 +12,8 @@ from . import shooter_api
 @shooter_api.route('/servers/<string:endpoint>/matches', methods=['GET'])
 def get_matches(endpoint):
     """Return all existing matches for a specify server."""
-    matches = db.session.query(Match).join(Server).filter(  # TODO: improve query
-        Server.endpoint == endpoint
-    ).all()
+    matches = Match.get_server_matches(endpoint)
+
     response = match_schema.dump(matches, many=True)
     return jsonify(response.data), 200
 
@@ -22,7 +21,7 @@ def get_matches(endpoint):
 @shooter_api.route('/servers/<string:endpoint>/matches/<int:id>', methods=['GET'])
 def get_match(endpoint, id):  # FIXME: endpoint arg
     """Return single match instance in JSON representation."""
-    match = Match.query.get(id)  # TODO: get or 404
+    match = Match.get(id)  # TODO: get or 404
     if match is None:
         return jsonify({'message': 'Match instance could not be found.'}), 404
 
@@ -37,6 +36,7 @@ def create_match(endpoint):
     if not json_data:
         return jsonify({'error': 'No input data provided.'}), 400
 
+    # TODO: check for exist endpoint
     # Validate and deserialize  input
     try:
         data = match_schema.load(json_data).data
@@ -44,7 +44,7 @@ def create_match(endpoint):
         return jsonify(err.messages), 400
 
     # Create new match
-    data['server_endpoint'] = endpoint
+    data['server'] = endpoint
     match = Match(data)
 
     # Update players data
