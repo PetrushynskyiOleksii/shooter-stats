@@ -5,7 +5,7 @@ from marshmallow import ValidationError
 
 from app import db
 from app.models import Server, Match, Player
-from app.schemes import matches_schema, match_schema
+from app.schemes import match_schema
 from . import shooter_api
 
 
@@ -15,8 +15,7 @@ def get_matches(endpoint):
     matches = db.session.query(Match).join(Server).filter(  # TODO: improve query
         Server.endpoint == endpoint
     ).all()
-    response = matches_schema.dump(matches)
-
+    response = match_schema.dump(matches, many=True)
     return jsonify(response.data), 200
 
 

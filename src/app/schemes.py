@@ -22,7 +22,6 @@ class PlayerSchema(Schema):
         return round(kda, 2)
 
 
-players_schema = PlayerSchema(many=True)
 player_schema = PlayerSchema()
 
 
@@ -58,4 +57,3 @@ class MatchSchema(Schema):
 
 
 match_schema = MatchSchema()
-matches_schema = MatchSchema(many=True)  # FIXME
