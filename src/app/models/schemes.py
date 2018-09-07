@@ -6,14 +6,20 @@ from marshmallow import Schema, fields
 class PlayerSchema(Schema):
     """Serializer schema for player JSON representation."""
 
-    # TODO: add order property in meta class
-
     nickname = fields.Str(required=True)
     kills = fields.Int()
     deaths = fields.Int()
     assists = fields.Int()
+    kda = fields.Method('get_kda')
 
-    # TODO: pre dump KDA property
+    def get_kda(self, obj):
+        """Return KDA value."""
+        try:
+            kda = (obj.kills + obj.assists) / obj.deaths
+        except ZeroDivisionError:
+            kda = obj.kills + obj.assists
+
+        return round(kda, 2)
 
 
 players_schema = PlayerSchema(many=True)

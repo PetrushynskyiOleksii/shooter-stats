@@ -21,9 +21,3 @@ class Player(db.Model):
     def __repr__(self):
         """Return player instance as a string."""
         return f'{self.nickname}'
-
-    @property
-    def kda(self):
-        """Return KDA value."""
-        # TODO
-        pass
