@@ -1,19 +1,20 @@
 """Collection of game statistic endpoints."""
 
-from flask import jsonify, request
+from flask import jsonify
 
+from app import db
 from app.models.players import Player
-from app.models.schemes import players_schema
+from app.models.schemes import player_schema
 from . import players_api
 
 
-@players_api.route('/', methods=['GET'])
-def get_players():
-    """Return list of all existing player."""
-    if request.method == 'GET':
-        # Query all existing players
-        players = Player.query.all()
-        # Serialize the queryset
-        response = players_schema.dump(players).data
+@players_api.route('/<string:nickname>', methods=['GET'])
+def get_player(nickname):
+    """Retrieve single player instance from database."""
+    player = db.session.query(Player).filter(Player.nickname == nickname).one()
+    if player is None:  # TODO: 404_response()
+        return jsonify({'message': 'Player instance could not be found.'}), 404
 
-    return jsonify(response), 200
+    print(player)
+    response = player_schema.dump(player)
+    return jsonify(response.data), 200
