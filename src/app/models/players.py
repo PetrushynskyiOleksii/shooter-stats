@@ -12,7 +12,6 @@ class Player(db.Model):
     kills = db.Column(db.Integer, nullable=False, default=0)
     deaths = db.Column(db.Integer, nullable=False, default=0)
     assists = db.Column(db.Integer, nullable=False, default=0)
-    match_id = db.Column(db.Integer, db.ForeignKey('matches.id'), nullable=True)
 
     def __init__(self, data):
         """Player model constructor."""
