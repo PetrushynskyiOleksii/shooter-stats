@@ -50,8 +50,6 @@ def create_player():
 
     # Create a new player instance
     player = Player(data)
-    db.session.add(player)
-    db.session.commit()
 
     response = player_schema.dump(player)
 
