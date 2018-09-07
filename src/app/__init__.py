@@ -18,10 +18,10 @@ def create_app(config_name):
 
     db.init_app(app)
 
-    from .views.shooter import shooter_api
-    app.register_blueprint(shooter_api, url_prefix='/servers')
+    from .views import shooter_api
+    app.register_blueprint(shooter_api, url_prefix='/')
 
     return app
 
 
-from .models import players, shooter
+from .models import *
