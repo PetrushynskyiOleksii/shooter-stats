@@ -31,10 +31,12 @@ class ServerSchema(Schema):
 
     endpoint = fields.Str(required=True)  # TODO: validation
     title = fields.Str(required=True)
+    total_matches = fields.Method('get_total_matches', dump_only=True)
+    # TODO: total players
 
-
-server_schema = ServerSchema()
-servers_schema = ServerSchema(many=True)
+    def get_total_matches(self, obj):
+        """Return count of matches played on server."""
+        return len(obj.matches)
 
 
 class MatchSchema(Schema):

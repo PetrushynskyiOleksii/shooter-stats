@@ -6,15 +6,17 @@ from marshmallow import ValidationError
 from app import db
 from app.models.shooter import Server, Match
 from app.models.players import Player
-from app.models.schemes import servers_schema, server_schema, players_schema
+from app.models.schemes import ServerSchema, players_schema
 from . import shooter_api
+
+server_schema = ServerSchema()
 
 
 @shooter_api.route('/', methods=['GET'])
 def get_servers():
     """Retrieve all existing servers from database."""
     servers = db.session.query(Server).all()
-    response = servers_schema.dump(servers)
+    response = server_schema.dump(servers, many=True)
 
     return jsonify(response.data), 200
 
