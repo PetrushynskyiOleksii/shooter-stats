@@ -3,7 +3,6 @@
 from flask import jsonify, request
 from marshmallow import ValidationError
 
-from app import db
 from app.models import Match, Player
 from app.schemes import player_schema, matches_schema
 
@@ -24,9 +23,7 @@ def get_player(nickname):
 @players_api.route('/<string:nickname>/matches', methods=['GET'])
 def get_player_matches(nickname):
     """Retrieve player matches from database."""
-    matches = db.session.query(Match).join(Match.scoreboard).filter(
-        Player.nickname == nickname
-    ).all()
+    matches = Match.get_matches(nickname)
     # TODO: paginate response
     response = matches_schema.dump(matches)
     return jsonify(response.data), 200

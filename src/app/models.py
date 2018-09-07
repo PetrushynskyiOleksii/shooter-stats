@@ -112,3 +112,11 @@ class Match(db.Model, BaseManager):
     def __repr__(self):
         """Return match instance as a string."""
         return f'{self.title}'
+
+    @classmethod
+    def get_player_matches(cls, nickname):
+        """Retrieve player matches from database."""
+        matches = db.session.query(cls).join(cls.scoreboard).filter(
+            Player.nickname == nickname
+        ).all()
+        return matches
