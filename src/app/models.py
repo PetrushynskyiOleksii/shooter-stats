@@ -1,6 +1,15 @@
-"""Stats models for database representation."""
+"""Collections of database models."""
 
-from . import db, BaseManager
+from . import db
+
+
+class BaseManager(object):
+    """Base query manager."""
+
+    def _save(self):
+        """Save instance in database."""
+        db.session.add(self)
+        db.session.commit()
 
 
 class Server(db.Model, BaseManager):

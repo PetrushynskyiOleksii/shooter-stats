@@ -4,9 +4,8 @@ from flask import jsonify, request
 from marshmallow import ValidationError
 
 from app import db
-from app.models.shooter import Match
-from app.models.players import Player
-from app.models.schemes import player_schema, matches_schema
+from app.models import Match, Player
+from app.schemes import player_schema, matches_schema
 
 from . import players_api
 

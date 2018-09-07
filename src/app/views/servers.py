@@ -4,9 +4,8 @@ from flask import jsonify, request
 from marshmallow import ValidationError
 
 from app import db
-from app.models.shooter import Server, Match
-from app.models.players import Player
-from app.models.schemes import ServerSchema, players_schema
+from app.models import Server, Match, Player
+from app.schemes import ServerSchema, players_schema
 from . import shooter_api
 
 server_schema = ServerSchema()
@@ -27,20 +26,21 @@ def create_server():
     json_data = request.get_json()
     if not json_data:
         return jsonify({'error': 'No input data provided.'}), 400
+
     # Validate and deserialize input
     try:
         data = server_schema.load(json_data).data
     except ValidationError as err:
         return jsonify(err.messages), 400
 
-    server = db.session.query.filter(Server.endpoint == data.get('endpoint')).first()
+    server = db.session.query(Server).filter(
+        Server.endpoint == data.get('endpoint')
+    ).first()
     if server:
         return jsonify({'error': 'Server with this endpoint already exists.'}), 400
 
     # Create a new server instance
     server = Server(data)
-    db.session.add(server)
-    db.session.commit()
 
     response = server_schema.dump(server)
 
@@ -50,7 +50,7 @@ def create_server():
 @shooter_api.route('/<string:endpoint>', methods=['GET', 'PATCH'])
 def get_or_update_server(endpoint):
     """Retrieve or update single server instance in database."""
-    server = db.session.query.filter(Server.endpoint == endpoint).first()  # TODO: get or 404
+    server = db.session.query(Server).filter(Server.endpoint == endpoint).first()
     if server is None:
         return jsonify({'message': 'Server instance could not be found.'}), 404
 
