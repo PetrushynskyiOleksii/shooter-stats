@@ -5,7 +5,7 @@ from marshmallow import ValidationError
 
 from app import db
 from app.models import Match, Player
-from app.schemes import player_schema, matches_schema
+from app.schemes import player_schema
 
 from . import shooter_api
 
@@ -18,15 +18,6 @@ def get_player(nickname):
         return jsonify({'message': 'Player instance could not be found.'}), 404
 
     response = player_schema.dump(player)
-    return jsonify(response.data), 200
-
-
-@shooter_api.route('/players/<string:nickname>/matches', methods=['GET'])
-def get_player_matches(nickname):
-    """Retrieve player matches from database."""
-    matches = Match.get_matches(nickname)
-    # TODO: paginate response
-    response = matches_schema.dump(matches)
     return jsonify(response.data), 200
 
 
