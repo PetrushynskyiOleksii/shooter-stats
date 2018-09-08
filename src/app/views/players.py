@@ -3,7 +3,7 @@
 from flask import jsonify, request
 
 from app.models import Player
-from app.schemes import player_schema
+from app.responses import paginate_response
 from . import shooter_api
 
 
@@ -40,13 +40,13 @@ def create_player():
     return jsonify(response), 201
 
 
-@shooter_api.route('/servers/<string:endpoint>/top_players', methods=['GET'])
-def get_top_server_players(endpoint):
-    """Return list of top killers/suiciders/assisters on server."""
+@shooter_api.route('/servers/<string:endpoint>/players', methods=['GET'])
+def get_server_players(endpoint):
+    """Return list of players on server."""
     # TODO: check for exist endpoint
-    order_by = request.args.get('order_by', 'kills')
-    limit = request.args.get('limit', 25, type=int)
-    players = Player.get_top_server_players(endpoint, order_by=order_by, limit=limit)
+    page = request.args.get('page', 1, type=int)
+    order_by = request.args.get('order_by')
+    players = Player.get_server_players(endpoint, order_by=order_by)
 
-    response = player_schema.dump(players, many=True)
-    return jsonify(response.data), 200
+    response = paginate_response(players, page=page)
+    return jsonify(response), 200

@@ -57,10 +57,9 @@ def create_match(endpoint):
 def get_player_matches(nickname):
     """Retrieve player matches from database."""
     page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 25, type=int)
     matches = Match.get_player_matches(nickname)
 
-    response = paginate_response(matches, page, per_page)
+    response = paginate_response(matches, page)
     return jsonify(response), 200
 
 
@@ -68,8 +67,7 @@ def get_player_matches(nickname):
 def get_server_matches(endpoint):
     """Return all existing matches for a specify server."""
     page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 25, type=int)
     matches = Match.get_server_matches(endpoint)
 
-    response = paginate_response(matches, page, per_page)
+    response = paginate_response(matches, page)
     return jsonify(response), 200
