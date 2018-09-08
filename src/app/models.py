@@ -103,20 +103,20 @@ class Player(db.Model, BaseManager):
         return player
 
     @classmethod
-    def get_top_server_players(cls, endpoint, order_by, limit):
-        """Retrieve limited list of top players by kills/deaths/assists."""
-        top_players = db.session.query(cls).join(cls.matches).filter(
+    def get_server_players(cls, endpoint, order_by):
+        """Retrieve ordered list of server players."""
+        players = db.session.query(cls).join(cls.matches).filter(
             Match.server_endpoint == endpoint
         )
 
         if order_by == 'kills':
-            top_players = top_players.order_by(Player.kills.desc())
+            players = players.order_by(Player.kills.desc())
         elif order_by == 'deaths':
-            top_players = top_players.order_by(Player.deaths.desc())
+            players = players.order_by(Player.deaths.desc())
         elif order_by == 'assists':
-            top_players = top_players.order_by(Player.assists.desc())
+            players = players.order_by(Player.assists.desc())
 
-        return top_players.all()[:limit]
+        return players
 
 
 scoreboards = db.Table(
