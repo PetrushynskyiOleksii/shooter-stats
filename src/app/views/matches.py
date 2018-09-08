@@ -50,7 +50,7 @@ def create_match(endpoint):
     match.save()
     response = match.to_dict()
 
-    return jsonify(response.data), 201
+    return jsonify(response), 201
 
 
 @shooter_api.route('/players/<string:nickname>/matches', methods=['GET'])

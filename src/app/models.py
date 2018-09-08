@@ -2,7 +2,7 @@
 from sqlalchemy import func
 
 from . import db
-from .schemes import match_schema, ServerSchema, PlayerSchema
+from .schemes import ServerSchema, PlayerSchema, MatchSchema
 
 
 class BaseManager(object):
@@ -128,7 +128,7 @@ scoreboards = db.Table(
 )
 
 
-class Match(db.Model):
+class Match(db.Model, BaseManager):
     """Match database representation."""
 
     __tablename__ = 'matches'
@@ -141,6 +141,8 @@ class Match(db.Model):
     server = db.relationship('Server', backref=db.backref('matches', lazy='subquery'))
     scoreboard = db.relationship('Player', secondary=scoreboards, lazy='subquery',
                                  backref=db.backref('matches', lazy=True))
+
+    schema = MatchSchema()
 
     def __init__(self, data):
         """Match model constructor."""
@@ -179,14 +181,3 @@ class Match(db.Model):
         """Retrieve single match instance from database."""
         match = db.session.query(cls).filter(cls.id == id).first()
         return match
-
-    def to_dict(self):
-        """Return match instance as JSON dict."""
-        data = match_schema.dump(self)
-        return data
-
-    @staticmethod
-    def from_dict(json_data):
-        """Return match instance as python's data types."""
-        schema_response = match_schema.load(json_data)
-        return schema_response
