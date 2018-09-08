@@ -1,6 +1,8 @@
 """Marshmallow schemes for API representations."""
 
-from marshmallow import Schema, fields
+import re
+
+from marshmallow import Schema, fields, validates, ValidationError
 
 
 class PlayerSchema(Schema):
@@ -36,6 +38,12 @@ class ServerSchema(Schema):
     def get_total_matches(self, obj):
         """Return count of matches played on server."""
         return len(obj.matches)
+
+    @validates('endpoint')
+    def validate_endpoint(self, endpoint):
+        """Validate endpoint value."""
+        if not re.fullmatch(r'^.+-\d{4,5}', endpoint):
+            raise ValidationError('Invalid endpoint.')
 
 
 server_schema = ServerSchema()
