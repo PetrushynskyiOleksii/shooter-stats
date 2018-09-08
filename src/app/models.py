@@ -1,7 +1,7 @@
 """Collections of database models."""
 
 from . import db
-from .schemes import server_schema, player_schema, match_schema
+from .schemes import match_schema
 
 
 class BaseManager(object):
@@ -11,6 +11,17 @@ class BaseManager(object):
         """Save instance in database."""
         db.session.add(self)
         db.session.commit()
+
+    @staticmethod
+    def from_dict(json_data, schema):
+        """Return instance as python's data types."""
+        data = schema.load(json_data).data
+        return data
+
+    def to_dict(self, schema):
+        """Return instance as JSON dict."""
+        data = schema.dump(self)
+        return data
 
 
 class Server(db.Model, BaseManager):
@@ -51,17 +62,6 @@ class Server(db.Model, BaseManager):
             db.session.commit()
 
         return self.title
-
-    def to_dict(self):
-        """Return server instances as JSON dict."""
-        data = server_schema.dump(self)
-        return data
-
-    @staticmethod
-    def from_dict(json_data):
-        """Return server instance as python's data types."""
-        data = server_schema.load(json_data).data
-        return data
 
 
 class Player(db.Model, BaseManager):
@@ -105,17 +105,6 @@ class Player(db.Model, BaseManager):
             top_players = top_players.order_by(Player.assists.desc())
 
         return top_players.all()[:limit]
-
-    def to_dict(self):
-        """Return player instances as JSON dict."""
-        data = player_schema.dump(self)
-        return data
-
-    @staticmethod
-    def from_dict(json_data):
-        """Return player instance as python's data types."""
-        data = player_schema.load(json_data).data
-        return data
 
 
 scoreboards = db.Table(
@@ -180,7 +169,7 @@ class Match(db.Model):
         return match
 
     def to_dict(self):
-        """Return match instances as JSON dict."""
+        """Return match instance as JSON dict."""
         data = match_schema.dump(self)
         return data
 

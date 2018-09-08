@@ -26,7 +26,7 @@ def create_server():
 
     # Validate and deserialize input
     try:
-        data = Server.from_dict(json_data)
+        data = Server.from_dict(json_data, server_schema)
     except ValidationError as err:
         return jsonify(err.messages), 400
 
@@ -37,7 +37,7 @@ def create_server():
     # Create a new server instance
     server = Server(data)
 
-    response = server.to_dict()
+    response = server.to_dict(server_schema)
     return jsonify(response.data), 201
 
 
@@ -53,5 +53,5 @@ def get_or_update_server(endpoint):
         json_data = request.get_json()
         server.update(json_data.get('title'))
 
-    response = server.to_dict()
+    response = server.to_dict(server_schema)
     return jsonify(response.data), 200
