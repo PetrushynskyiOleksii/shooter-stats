@@ -156,17 +156,15 @@ class Match(db.Model):
     @classmethod
     def get_player_matches(cls, nickname):
         """Retrieve player matches from database."""
-        matches = db.session.query(cls).join(cls.scoreboard).filter(
-            Player.nickname == nickname
-        ).all()
+        query = db.session.query(cls).join(cls.scoreboard).filter(Player.nickname == nickname)
+        matches = query.order_by(cls.end_time.desc()).all()
         return matches
 
     @classmethod
     def get_server_matches(cls, endpoint):
-        """Retrieve server matches from database."""
-        matches = db.session.query(cls).join(Server).filter(  # TODO: improve query
-            Server.endpoint == endpoint
-        ).all()
+        """Retrieve server matches ordered by end_time from database."""
+        query = db.session.query(cls).join(Server).filter(Server.endpoint == endpoint)
+        matches = query.order_by(cls.end_time.desc()).all()
         return matches
 
     @classmethod

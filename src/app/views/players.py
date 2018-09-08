@@ -45,7 +45,7 @@ def get_top_server_players(endpoint):
     """Return list of top killers/suiciders/assisters on server."""
     # TODO: check for exist endpoint
     order_by = request.args.get('order_by', 'kills')
-    limit = int(request.args.get('limit', 25))
+    limit = request.args.get('limit', 25, type=int)
     players = Player.get_top_server_players(endpoint, order_by=order_by, limit=limit)
 
     response = player_schema.dump(players, many=True)

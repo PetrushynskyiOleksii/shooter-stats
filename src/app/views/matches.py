@@ -65,7 +65,7 @@ def create_match(endpoint):
 @shooter_api.route('/players/<string:nickname>/matches', methods=['GET'])
 def get_player_matches(nickname):
     """Retrieve player matches from database."""
-    matches = Match.get_matches(nickname)
+    matches = Match.get_player_matches(nickname)
     # TODO: paginate response
     response = match_schema.dump(matches, many=True)
     return jsonify(response.data), 200
