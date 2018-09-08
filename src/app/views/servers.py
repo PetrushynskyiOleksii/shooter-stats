@@ -11,10 +11,11 @@ from . import shooter_api
 def get_servers():
     """Retrieve all existing servers from database."""
     page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('pre_page', 25, type=int)
     order_by = request.args.get('order_by', None)
-    paginated_data = Server.get_all(order_by, page)
+    servers = Server.get_all(order_by, page)
 
-    response = paginate_response(paginated_data, page)
+    response = paginate_response(servers, page, per_page)
     return jsonify(response), 200
 
 
@@ -54,4 +55,4 @@ def get_or_update_server(endpoint):
         server.update(json_data.get('title'))
 
     response = server.to_dict()
-    return jsonify(response.data), 200
+    return jsonify(response), 200

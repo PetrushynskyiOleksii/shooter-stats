@@ -53,7 +53,7 @@ class Server(db.Model, BaseManager):
         return server
 
     @classmethod
-    def get_all(cls, order_by, page=1, per_page=25):
+    def get_all(cls, order_by):
         """Retrieve all existing servers from database."""
         query = db.session.query(cls)
         if order_by == 'title':
