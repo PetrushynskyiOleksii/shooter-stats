@@ -2,7 +2,9 @@
 
 import re
 
-from marshmallow import Schema, fields, validates, ValidationError
+from marshmallow import (
+    Schema, fields, validates, ValidationError, validates_schema
+)
 
 
 class PlayerSchema(Schema):
@@ -72,7 +74,12 @@ class MatchSchema(Schema):
         """Return elapsed time during match."""
         return str(obj.end_time - obj.start_time)
 
-    # TODO: validate time -> end_time>start_time
+    @validates_schema
+    def validate_time(self, data):
+        """Validate match start and end time."""
+        if data['start_time'] > data['end_time']:
+            message = 'The start time must be earlier than the end time.'
+            raise ValidationError(message, 'start_time')
 
 
 match_schema = MatchSchema()
