@@ -23,6 +23,13 @@ class PlayerSchema(Schema):
 
         return round(kda, 2)
 
+    @validates('nickname')
+    def validate_nickname(self, nickname):
+        """Validate player nickname value."""
+        if not re.fullmatch(r'[a-zA-Z0-9]+', nickname):
+            message = 'Nickname must contains only chars or digits'
+            raise ValidationError(message)
+
 
 player_schema = PlayerSchema()
 
