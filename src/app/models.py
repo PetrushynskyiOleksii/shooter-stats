@@ -1,6 +1,7 @@
 """Collections of database models."""
 
 from . import db
+from .schemes import server_schema
 
 
 class BaseManager(object):
@@ -50,6 +51,11 @@ class Server(db.Model, BaseManager):
             db.session.commit()
 
         return self.title
+
+    def to_dict(self):
+        """Return server instances as JSON dict."""
+        data = server_schema.dump(self)
+        return data
 
 
 class Player(db.Model, BaseManager):

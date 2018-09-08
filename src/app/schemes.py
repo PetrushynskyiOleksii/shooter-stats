@@ -38,6 +38,9 @@ class ServerSchema(Schema):
         return len(obj.matches)
 
 
+server_schema = ServerSchema()
+
+
 class MatchSchema(Schema):
     """Serializer schema for match JSON representation."""
 

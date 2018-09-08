@@ -4,10 +4,8 @@ from flask import jsonify, request
 from marshmallow import ValidationError
 
 from app.models import Server
-from app.schemes import ServerSchema
+from app.schemes import server_schema
 from . import shooter_api
-
-server_schema = ServerSchema()
 
 
 @shooter_api.route('/servers', methods=['GET'])
@@ -15,7 +13,7 @@ def get_servers():
     """Retrieve all existing servers from database."""
     servers = Server.get_all()
 
-    response = server_schema.dump(servers, many=True)
+    response = servers.to_dict(servers, many=True)
     return jsonify(response.data), 200
 
 
@@ -39,7 +37,7 @@ def create_server():
     # Create a new server instance
     server = Server(data)
 
-    response = server_schema.dump(server)
+    response = server.to_dict()
     return jsonify(response.data), 201
 
 
@@ -55,5 +53,5 @@ def get_or_update_server(endpoint):
         json_data = request.get_json()
         server.update(json_data.get('title'))
 
-    response = server_schema.dump(server)
+    response = server.to_dict()
     return jsonify(response.data), 200
