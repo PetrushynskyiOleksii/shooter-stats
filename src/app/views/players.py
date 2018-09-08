@@ -1,11 +1,9 @@
 """Collection of game statistic endpoints."""
 
 from flask import jsonify, request
-from marshmallow import ValidationError
 
 from app.models import Player
 from app.schemes import player_schema
-
 from . import shooter_api
 
 
@@ -27,12 +25,9 @@ def create_player():
     if not json_data:
         return jsonify({'error': 'No input data provided.'}), 400
     # Validate and deserialize input
-    try:
-        data, errors = Player.from_dict(json_data, player_schema)
-        if errors:
-            raise ValidationError(errors)
-    except ValidationError as err:
-        return jsonify(err.messages), 400
+    data, errors = Player.from_dict(json_data, player_schema)
+    if errors:
+        return jsonify(errors), 400
 
     player = Player.get_by_nickname(data.get('nickname'))
     if player:

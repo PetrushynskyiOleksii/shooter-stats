@@ -27,7 +27,7 @@ class PlayerSchema(Schema):
     def validate_nickname(self, nickname):
         """Validate player nickname value."""
         if not re.fullmatch(r'[a-zA-Z0-9]+', nickname):
-            message = 'Nickname must contains only chars or digits'
+            message = 'Nickname must contains only chars or digits.'
             raise ValidationError(message)
 
 
@@ -50,7 +50,8 @@ class ServerSchema(Schema):
     def validate_endpoint(self, endpoint):
         """Validate endpoint value."""
         if not re.fullmatch(r'^.+-\d{4,5}', endpoint):
-            raise ValidationError('Invalid endpoint.')
+            message = 'Endpoint must match template: domain-port.'
+            raise ValidationError(message)
 
 
 server_schema = ServerSchema()

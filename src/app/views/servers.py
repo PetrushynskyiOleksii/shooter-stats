@@ -1,7 +1,6 @@
 """Handlers collection of server model endpoints."""
 
 from flask import jsonify, request
-from marshmallow import ValidationError
 
 from app.models import Server
 from app.schemes import server_schema
@@ -25,12 +24,9 @@ def create_server():
         return jsonify({'error': 'No input data provided.'}), 400
 
     # Validate and deserialize input
-    try:
-        data, errors = Server.from_dict(json_data, server_schema)
-        if errors:
-            raise ValidationError(errors)
-    except ValidationError as err:
-        return jsonify(err.messages), 400
+    data, errors = Server.from_dict(json_data, server_schema)
+    if errors:
+        return jsonify(errors), 400
 
     server = Server.get_by_endpoint(data.get('endpoint'))
     if server:
