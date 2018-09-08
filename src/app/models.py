@@ -1,6 +1,7 @@
 """Collections of database models."""
 
 from . import db
+from .schemes import match_schema
 
 
 class BaseManager(object):
@@ -10,6 +11,17 @@ class BaseManager(object):
         """Save instance in database."""
         db.session.add(self)
         db.session.commit()
+
+    @staticmethod
+    def from_dict(json_data, schema):
+        """Return instance as python's data types."""
+        data = schema.load(json_data).data
+        return data
+
+    def to_dict(self, schema):
+        """Return instance as JSON dict."""
+        data = schema.dump(self)
+        return data
 
 
 class Server(db.Model, BaseManager):
@@ -155,3 +167,14 @@ class Match(db.Model):
         """Retrieve single match instance from database."""
         match = db.session.query(cls).filter(cls.id == id).first()
         return match
+
+    def to_dict(self):
+        """Return match instance as JSON dict."""
+        data = match_schema.dump(self)
+        return data
+
+    @staticmethod
+    def from_dict(json_data):
+        """Return match instance as python's data types."""
+        data = match_schema.load(json_data).data
+        return data

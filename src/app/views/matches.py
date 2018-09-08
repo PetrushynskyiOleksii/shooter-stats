@@ -10,7 +10,7 @@ from . import shooter_api
 
 
 @shooter_api.route('/servers/<string:endpoint>/matches', methods=['GET'])
-def get_matches(endpoint):
+def get_server_matches(endpoint):
     """Return all existing matches for a specify server."""
     matches = Match.get_server_matches(endpoint)
 
@@ -25,7 +25,7 @@ def get_match(endpoint, id):  # FIXME: endpoint arg
     if match is None:
         return jsonify({'message': 'Match instance could not be found.'}), 404
 
-    response = match_schema.dump(match)
+    response = match.to_dict()
     return jsonify(response), 200
 
 
@@ -39,7 +39,7 @@ def create_match(endpoint):
     # TODO: check for exist endpoint
     # Validate and deserialize  input
     try:
-        data = match_schema.load(json_data).data
+        data = Match.from_dict(json_data)
     except ValidationError as err:
         return jsonify(err.messages), 400
 
@@ -59,7 +59,7 @@ def create_match(endpoint):
         match.scoreboard.append(player_for_upd)
 
     match.save()
-    response = match_schema.dump(match)
+    response = match.to_dict()
 
     return jsonify(response.data), 201
 

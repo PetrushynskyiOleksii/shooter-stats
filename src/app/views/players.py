@@ -16,7 +16,7 @@ def get_player(nickname):
     if player is None:
         return jsonify({'message': 'Player instance could not be found.'}), 404
 
-    response = player_schema.dump(player)
+    response = player.to_dict(player_schema)
     return jsonify(response.data), 200
 
 
@@ -28,7 +28,7 @@ def create_player():
         return jsonify({'error': 'No input data provided.'}), 400
     # Validate and deserialize input
     try:
-        data = player_schema.load(json_data).data
+        data = Player.from_dict(json_data, player_schema)
     except ValidationError as err:
         return jsonify(err.messages), 400
 
@@ -39,7 +39,7 @@ def create_player():
     # Create a new player instance
     player = Player(data)
 
-    response = player_schema.dump(player)
+    response = player.to_dict(player_schema)
     return jsonify(response.data), 201
 
 
