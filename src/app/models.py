@@ -15,8 +15,8 @@ class BaseManager(object):
     @staticmethod
     def from_dict(json_data, schema):
         """Return instance as python's data types."""
-        data = schema.load(json_data).data
-        return data
+        schema_response = schema.load(json_data)
+        return schema_response
 
     def to_dict(self, schema):
         """Return instance as JSON dict."""
@@ -176,5 +176,5 @@ class Match(db.Model):
     @staticmethod
     def from_dict(json_data):
         """Return match instance as python's data types."""
-        data = match_schema.load(json_data).data
-        return data
+        schema_response = match_schema.load(json_data)
+        return schema_response

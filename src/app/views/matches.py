@@ -1,7 +1,6 @@
 """Collection of game statistic endpoints."""
 
 from flask import jsonify, request
-from marshmallow import ValidationError
 
 from app import db
 from app.models import Match, Player
@@ -38,10 +37,9 @@ def create_match(endpoint):
 
     # TODO: check for exist endpoint
     # Validate and deserialize  input
-    try:
-        data = Match.from_dict(json_data)
-    except ValidationError as err:
-        return jsonify(err.messages), 400
+    data, errors = Match.from_dict(json_data)
+    if errors:
+        return jsonify(errors), 400
 
     # Create new match
     data['server'] = endpoint

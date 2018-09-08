@@ -1,6 +1,10 @@
 """Marshmallow schemes for API representations."""
 
-from marshmallow import Schema, fields
+import re
+
+from marshmallow import (
+    Schema, fields, validates, ValidationError, validates_schema
+)
 
 
 class PlayerSchema(Schema):
@@ -21,6 +25,13 @@ class PlayerSchema(Schema):
 
         return round(kda, 2)
 
+    @validates('nickname')
+    def validate_nickname(self, nickname):
+        """Validate player nickname value."""
+        if not re.fullmatch(r'[a-zA-Z0-9]+', nickname):
+            message = 'Nickname must contains only chars or digits.'
+            raise ValidationError(message)
+
 
 player_schema = PlayerSchema()
 
@@ -36,6 +47,13 @@ class ServerSchema(Schema):
     def get_total_matches(self, obj):
         """Return count of matches played on server."""
         return len(obj.matches)
+
+    @validates('endpoint')
+    def validate_endpoint(self, endpoint):
+        """Validate endpoint value."""
+        if not re.fullmatch(r'^.+-\d{4,5}', endpoint):
+            message = 'Endpoint must match template: domain-port.'
+            raise ValidationError(message)
 
 
 server_schema = ServerSchema()
@@ -56,7 +74,12 @@ class MatchSchema(Schema):
         """Return elapsed time during match."""
         return str(obj.end_time - obj.start_time)
 
-    # TODO: validate time -> end_time>start_time
+    @validates_schema
+    def validate_time(self, data):
+        """Validate match start and end time."""
+        if data['start_time'] > data['end_time']:
+            message = 'The start time must be earlier than the end time.'
+            raise ValidationError(message, 'start_time')
 
 
 match_schema = MatchSchema()
