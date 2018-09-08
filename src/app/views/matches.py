@@ -25,7 +25,7 @@ def get_match(endpoint, id):  # FIXME: endpoint arg
     if match is None:
         return jsonify({'message': 'Match instance could not be found.'}), 404
 
-    response = match_schema.dump(match)
+    response = match.to_dict()
     return jsonify(response), 200
 
 
@@ -59,7 +59,7 @@ def create_match(endpoint):
         match.scoreboard.append(player_for_upd)
 
     match.save()
-    response = match_schema.dump(match)
+    response = match.to_dict()
 
     return jsonify(response.data), 201
 

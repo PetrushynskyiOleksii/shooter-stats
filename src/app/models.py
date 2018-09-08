@@ -1,7 +1,7 @@
 """Collections of database models."""
 
 from . import db
-from .schemes import server_schema, player_schema
+from .schemes import server_schema, player_schema, match_schema
 
 
 class BaseManager(object):
@@ -166,3 +166,8 @@ class Match(db.Model):
         """Retrieve single match instance from database."""
         match = db.session.query(cls).filter(cls.id == id).first()
         return match
+
+    def to_dict(self):
+        """Return match instances as JSON dict."""
+        data = match_schema.dump(self)
+        return data
