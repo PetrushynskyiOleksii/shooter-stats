@@ -1,7 +1,7 @@
 """Collections of database models."""
 
 from . import db
-from .schemes import server_schema
+from .schemes import server_schema, player_schema
 
 
 class BaseManager(object):
@@ -99,6 +99,11 @@ class Player(db.Model, BaseManager):
             top_players = top_players.order_by(Player.assists.desc())
 
         return top_players.all()[:limit]
+
+    def to_dict(self):
+        """Return player instances as JSON dict."""
+        data = player_schema.dump(self)
+        return data
 
 
 scoreboards = db.Table(

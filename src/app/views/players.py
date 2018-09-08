@@ -16,7 +16,7 @@ def get_player(nickname):
     if player is None:
         return jsonify({'message': 'Player instance could not be found.'}), 404
 
-    response = player_schema.dump(player)
+    response = player.to_dict()
     return jsonify(response.data), 200
 
 
@@ -39,7 +39,7 @@ def create_player():
     # Create a new player instance
     player = Player(data)
 
-    response = player_schema.dump(player)
+    response = player.to_dict()
     return jsonify(response.data), 201
 
 
