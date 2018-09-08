@@ -4,17 +4,8 @@ from flask import jsonify, request
 
 from app import db
 from app.models import Match, Player
-from app.schemes import match_schema
+from app.responses import paginate_response
 from . import shooter_api
-
-
-@shooter_api.route('/servers/<string:endpoint>/matches', methods=['GET'])
-def get_server_matches(endpoint):
-    """Return all existing matches for a specify server."""
-    matches = Match.get_server_matches(endpoint)
-
-    response = match_schema.dump(matches, many=True)
-    return jsonify(response.data), 200
 
 
 @shooter_api.route('/servers/<string:endpoint>/matches/<int:id>', methods=['GET'])
@@ -65,7 +56,20 @@ def create_match(endpoint):
 @shooter_api.route('/players/<string:nickname>/matches', methods=['GET'])
 def get_player_matches(nickname):
     """Retrieve player matches from database."""
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 25, type=int)
     matches = Match.get_player_matches(nickname)
-    # TODO: paginate response
-    response = match_schema.dump(matches, many=True)
-    return jsonify(response.data), 200
+
+    response = paginate_response(matches, page, per_page)
+    return jsonify(response), 200
+
+
+@shooter_api.route('/servers/<string:endpoint>/matches', methods=['GET'])
+def get_server_matches(endpoint):
+    """Return all existing matches for a specify server."""
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 25, type=int)
+    matches = Match.get_server_matches(endpoint)
+
+    response = paginate_response(matches, page, per_page)
+    return jsonify(response), 200

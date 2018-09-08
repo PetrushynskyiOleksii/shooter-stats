@@ -63,8 +63,6 @@ class Server(db.Model, BaseManager):
         else:
             servers = query.order_by(func.random())
 
-        servers = servers.paginate(page, per_page=per_page, error_out=False)
-
         return servers
 
     def update(self, new_title):
@@ -162,14 +160,16 @@ class Match(db.Model):
     def get_player_matches(cls, nickname):
         """Retrieve player matches from database."""
         query = db.session.query(cls).join(cls.scoreboard).filter(Player.nickname == nickname)
-        matches = query.order_by(cls.end_time.desc()).all()
+        matches = query.order_by(cls.end_time.desc())
+
         return matches
 
     @classmethod
     def get_server_matches(cls, endpoint):
         """Retrieve server matches ordered by end_time from database."""
         query = db.session.query(cls).join(Server).filter(Server.endpoint == endpoint)
-        matches = query.order_by(cls.end_time.desc()).all()
+        matches = query.order_by(cls.end_time.desc())
+
         return matches
 
     @classmethod
