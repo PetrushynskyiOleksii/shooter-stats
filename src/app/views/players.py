@@ -14,8 +14,8 @@ def get_player(nickname):
     if player is None:
         return jsonify({'message': 'Player instance could not be found.'}), 404
 
-    response = player.to_dict(player_schema)
-    return jsonify(response.data), 200
+    response = player.to_dict()
+    return jsonify(response), 200
 
 
 @shooter_api.route('/players', methods=['POST'])
@@ -25,7 +25,7 @@ def create_player():
     if not json_data:
         return jsonify({'error': 'No input data provided.'}), 400
     # Validate and deserialize input
-    data, errors = Player.from_dict(json_data, player_schema)
+    data, errors = Player.from_dict(json_data)
     if errors:
         return jsonify(errors), 400
 
@@ -36,7 +36,7 @@ def create_player():
     # Create a new player instance
     player = Player(data)
 
-    response = player.to_dict(player_schema)
+    response = player.to_dict()
     return jsonify(response), 201
 
 

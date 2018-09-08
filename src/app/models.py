@@ -2,7 +2,7 @@
 from sqlalchemy import func
 
 from . import db
-from .schemes import match_schema, ServerSchema
+from .schemes import match_schema, ServerSchema, PlayerSchema
 
 
 class BaseManager(object):
@@ -83,6 +83,8 @@ class Player(db.Model, BaseManager):
     kills = db.Column(db.Integer, nullable=False, default=0)
     deaths = db.Column(db.Integer, nullable=False, default=0)
     assists = db.Column(db.Integer, nullable=False, default=0)
+
+    schema = PlayerSchema()
 
     def __init__(self, data):
         """Player model constructor."""
