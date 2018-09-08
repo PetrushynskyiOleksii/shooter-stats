@@ -39,7 +39,7 @@ player_schema = PlayerSchema()
 class ServerSchema(Schema):
     """Serializer schema for server JSON representation."""
 
-    endpoint = fields.Str(required=True)  # TODO: validation
+    endpoint = fields.Str(required=True)
     title = fields.Str(required=True)
     total_matches = fields.Method('get_total_matches', dump_only=True)
 

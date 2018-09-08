@@ -3,18 +3,19 @@
 from flask import jsonify, request
 
 from app.models import Server
-from app.schemes import server_schema
+from app.responses import paginate_response
 from . import shooter_api
 
 
 @shooter_api.route('/servers', methods=['GET'])
 def get_servers():
     """Retrieve all existing servers from database."""
+    page = request.args.get('page', 1, type=int)
     order_by = request.args.get('order_by', None)
-    servers = Server.get_all(order_by)
+    paginated_data = Server.get_all(order_by, page)
 
-    response = server_schema.dump(servers, many=True)
-    return jsonify(response.data), 200
+    response = paginate_response(paginated_data, page)
+    return jsonify(response), 200
 
 
 @shooter_api.route('/servers', methods=['POST'])
@@ -25,7 +26,7 @@ def create_server():
         return jsonify({'error': 'No input data provided.'}), 400
 
     # Validate and deserialize input
-    data, errors = Server.from_dict(json_data, server_schema)
+    data, errors = Server.from_dict(json_data)
     if errors:
         return jsonify(errors), 400
 
@@ -36,8 +37,8 @@ def create_server():
     # Create a new server instance
     server = Server(data)
 
-    response = server.to_dict(server_schema)
-    return jsonify(response.data), 201
+    response = server.to_dict()
+    return jsonify(response), 201
 
 
 @shooter_api.route('/servers/<string:endpoint>', methods=['GET', 'PATCH'])
@@ -52,5 +53,5 @@ def get_or_update_server(endpoint):
         json_data = request.get_json()
         server.update(json_data.get('title'))
 
-    response = server.to_dict(server_schema)
+    response = server.to_dict()
     return jsonify(response.data), 200

@@ -37,7 +37,7 @@ def create_player():
     player = Player(data)
 
     response = player.to_dict(player_schema)
-    return jsonify(response.data), 201
+    return jsonify(response), 201
 
 
 @shooter_api.route('/servers/<string:endpoint>/top_players', methods=['GET'])

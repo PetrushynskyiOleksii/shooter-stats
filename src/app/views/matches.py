@@ -20,7 +20,7 @@ def get_server_matches(endpoint):
 @shooter_api.route('/servers/<string:endpoint>/matches/<int:id>', methods=['GET'])
 def get_match(endpoint, id):  # FIXME: endpoint arg
     """Return single match instance in JSON representation."""
-    match = Match.get(id)  # TODO: get or 404
+    match = Match.get(id)
     if match is None:
         return jsonify({'message': 'Match instance could not be found.'}), 404
 

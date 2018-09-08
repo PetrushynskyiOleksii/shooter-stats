@@ -1,7 +1,8 @@
 """Collections of database models."""
+from sqlalchemy import func
 
 from . import db
-from .schemes import match_schema
+from .schemes import match_schema, ServerSchema
 
 
 class BaseManager(object):
@@ -12,16 +13,16 @@ class BaseManager(object):
         db.session.add(self)
         db.session.commit()
 
-    @staticmethod
-    def from_dict(json_data, schema):
+    @classmethod
+    def from_dict(cls, json_data):
         """Return instance as python's data types."""
-        schema_response = schema.load(json_data)
+        schema_response = cls.schema.load(json_data)
         return schema_response
 
-    def to_dict(self, schema):
+    def to_dict(self):
         """Return instance as JSON dict."""
-        data = schema.dump(self)
-        return data
+        schema_response = self.schema.dump(self)
+        return schema_response.data
 
 
 class Server(db.Model, BaseManager):
@@ -32,6 +33,8 @@ class Server(db.Model, BaseManager):
     endpoint = db.Column(db.String(64), nullable=False, primary_key=True)
     title = db.Column(db.String(64), nullable=False)
 
+    schema = ServerSchema()
+
     def __init__(self, data):
         """Server model constructor."""
         self.endpoint = data.get('endpoint')
@@ -41,7 +44,7 @@ class Server(db.Model, BaseManager):
 
     def __repr__(self):
         """Return server instance as a string."""
-        return f'{self.title} ({self.id})'
+        return f'{self.title}'
 
     @classmethod
     def get_by_endpoint(cls, endpoint):
@@ -50,15 +53,17 @@ class Server(db.Model, BaseManager):
         return server
 
     @classmethod
-    def get_all(cls, order_by):
+    def get_all(cls, order_by, page=1, per_page=25):
         """Retrieve all existing servers from database."""
         query = db.session.query(cls)
         if order_by == 'title':
-            servers = query.order_by(cls.title).all()
+            servers = query.order_by(cls.title)
         elif order_by == 'endpoint':
-            servers = query.order_by(cls.endpoint).all()
+            servers = query.order_by(cls.endpoint)
         else:
-            servers = query.all()
+            servers = query.order_by(func.random())
+
+        servers = servers.paginate(page, per_page=per_page, error_out=False)
 
         return servers
 
