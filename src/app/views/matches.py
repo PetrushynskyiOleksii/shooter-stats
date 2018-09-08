@@ -39,7 +39,9 @@ def create_match(endpoint):
     # TODO: check for exist endpoint
     # Validate and deserialize  input
     try:
-        data = Match.from_dict(json_data)
+        data, errors = Match.from_dict(json_data)
+        if errors:
+            raise ValidationError(errors)
     except ValidationError as err:
         return jsonify(err.messages), 400
 

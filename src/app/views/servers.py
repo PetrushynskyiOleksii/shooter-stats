@@ -26,7 +26,9 @@ def create_server():
 
     # Validate and deserialize input
     try:
-        data = Server.from_dict(json_data, server_schema)
+        data, errors = Server.from_dict(json_data, server_schema)
+        if errors:
+            raise ValidationError(errors)
     except ValidationError as err:
         return jsonify(err.messages), 400
 
