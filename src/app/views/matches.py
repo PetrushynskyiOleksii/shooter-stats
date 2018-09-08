@@ -35,9 +35,10 @@ def create_match(endpoint):
     # Create new match
     data['server'] = endpoint
     match = Match(data)
+    match.save()
 
     # Update players data
-    for player in data.get('scoreboard'):
+    for player in data.get('players'):
         match_player = Scoreboard(player_data=player, match_id=match.id)
         player_for_upd = db.session.query(Player).filter(
             Player.nickname == player.get('nickname')
@@ -46,9 +47,9 @@ def create_match(endpoint):
         player_for_upd.deaths += player.get('deaths')
         player_for_upd.assists += player.get('assists')
 
-        match.scoreboard.append(match_player)
+        match.players.append(match_player)
 
-    match.save()
+    # match.save()
     response = match.to_dict()
 
     return jsonify(response), 201
