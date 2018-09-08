@@ -10,7 +10,8 @@ from . import shooter_api
 @shooter_api.route('/servers', methods=['GET'])
 def get_servers():
     """Retrieve all existing servers from database."""
-    servers = Server.get_all()
+    order_by = request.args.get('order_by', None)
+    servers = Server.get_all(order_by)
 
     response = server_schema.dump(servers, many=True)
     return jsonify(response.data), 200

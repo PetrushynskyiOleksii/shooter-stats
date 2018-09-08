@@ -50,9 +50,16 @@ class Server(db.Model, BaseManager):
         return server
 
     @classmethod
-    def get_all(cls):
+    def get_all(cls, order_by):
         """Retrieve all existing servers from database."""
-        servers = db.session.query(cls).all()
+        query = db.session.query(cls)
+        if order_by == 'title':
+            servers = query.order_by(cls.title).all()
+        elif order_by == 'endpoint':
+            servers = query.order_by(cls.endpoint).all()
+        else:
+            servers = query.all()
+
         return servers
 
     def update(self, new_title):
