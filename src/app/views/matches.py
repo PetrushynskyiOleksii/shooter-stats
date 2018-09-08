@@ -3,7 +3,7 @@
 from flask import jsonify, request
 
 from app import db
-from app.models import Match, Player
+from app.models import Match, Player, Scoreboard
 from app.utils import paginate_response
 from . import shooter_api
 
@@ -38,6 +38,7 @@ def create_match(endpoint):
 
     # Update players data
     for player in data.get('scoreboard'):
+        match_player = Scoreboard(player_data=player, match_id=match.id)
         player_for_upd = db.session.query(Player).filter(
             Player.nickname == player.get('nickname')
         ).with_for_update().one()
@@ -45,7 +46,7 @@ def create_match(endpoint):
         player_for_upd.deaths += player.get('deaths')
         player_for_upd.assists += player.get('assists')
 
-        match.scoreboard.append(player_for_upd)
+        match.scoreboard.append(match_player)
 
     match.save()
     response = match.to_dict()

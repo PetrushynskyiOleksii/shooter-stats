@@ -79,6 +79,7 @@ class Player(db.Model, SchemaManager):
     kills = db.Column(db.Integer, nullable=False, default=0)
     deaths = db.Column(db.Integer, nullable=False, default=0)
     assists = db.Column(db.Integer, nullable=False, default=0)
+    matches = db.relationship('Scoreboard', back_populates='player')
 
     schema = PlayerSchema()
 
@@ -116,13 +117,30 @@ class Player(db.Model, SchemaManager):
         return players
 
 
-scoreboards = db.Table(
-    'scoreboards',
-    db.Column('match_id', db.Integer, db.ForeignKey('matches.id'), primary_key=True),
-    db.Column('player_nickname', db.String(128),
-              db.ForeignKey('players.nickname'), primary_key=True
-              )
-)
+class Scoreboard(db.Model):
+    """Scoreboard database representation."""
+
+    __tablename__ = 'scoreboards'
+
+    match_id = db.Column(db.Integer, db.ForeignKey('matches.id'), primary_key=True)
+    player_nickname = db.Column(db.String(128), db.ForeignKey('players.nickname'),
+                                primary_key=True)
+    match = db.relationship('Match', back_populates='players')
+    player = db.relationship('Player', back_populates='matches')
+    kills = db.Column(db.Integer, nullable=False, default=0)
+    deaths = db.Column(db.Integer, nullable=False, default=0)
+    assists = db.Column(db.Integer, nullable=False, default=0)
+
+    def __init__(self, player_data, match_id):
+        """Scoreboard model constructor."""
+        self.player_nickname = player_data.get('nickname')
+        self.kills = player_data.get('kills')
+        self.deaths = player_data.get('deaths')
+        self.assists = player_data.get('assists')
+        self.match_id = match_id
+
+        db.session.add(self)
+        db.session.commit()
 
 
 class Match(db.Model, SchemaManager):
@@ -136,8 +154,7 @@ class Match(db.Model, SchemaManager):
     end_time = db.Column(db.DateTime, nullable=False)
     server_endpoint = db.Column(db.String(64), db.ForeignKey('servers.endpoint'))
     server = db.relationship('Server', backref=db.backref('matches', lazy='subquery'))
-    scoreboard = db.relationship('Player', secondary=scoreboards, lazy='subquery',
-                                 backref=db.backref('matches', lazy=True))
+    players = db.relationship('Scoreboard', back_populates='match')
 
     schema = MatchSchema()
 
