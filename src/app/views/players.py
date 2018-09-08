@@ -28,7 +28,7 @@ def create_player():
         return jsonify({'error': 'No input data provided.'}), 400
     # Validate and deserialize input
     try:
-        data = player_schema.load(json_data).data
+        data = Player.from_dict(json_data)
     except ValidationError as err:
         return jsonify(err.messages), 400
 

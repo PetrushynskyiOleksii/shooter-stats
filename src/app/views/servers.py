@@ -13,7 +13,7 @@ def get_servers():
     """Retrieve all existing servers from database."""
     servers = Server.get_all()
 
-    response = servers.to_dict(servers, many=True)
+    response = server_schema.dump(servers, many=True)
     return jsonify(response.data), 200
 
 
@@ -26,7 +26,7 @@ def create_server():
 
     # Validate and deserialize input
     try:
-        data = server_schema.load(json_data).data
+        data = Server.from_dict(json_data)
     except ValidationError as err:
         return jsonify(err.messages), 400
 

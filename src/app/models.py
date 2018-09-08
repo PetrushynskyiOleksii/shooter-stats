@@ -57,6 +57,12 @@ class Server(db.Model, BaseManager):
         data = server_schema.dump(self)
         return data
 
+    @staticmethod
+    def from_dict(json_data):
+        """Return server instance as python's data types."""
+        data = server_schema.load(json_data).data
+        return data
+
 
 class Player(db.Model, BaseManager):
     """Player database representation."""
@@ -103,6 +109,12 @@ class Player(db.Model, BaseManager):
     def to_dict(self):
         """Return player instances as JSON dict."""
         data = player_schema.dump(self)
+        return data
+
+    @staticmethod
+    def from_dict(json_data):
+        """Return player instance as python's data types."""
+        data = player_schema.load(json_data).data
         return data
 
 
@@ -170,4 +182,10 @@ class Match(db.Model):
     def to_dict(self):
         """Return match instances as JSON dict."""
         data = match_schema.dump(self)
+        return data
+
+    @staticmethod
+    def from_dict(json_data):
+        """Return match instance as python's data types."""
+        data = match_schema.load(json_data).data
         return data
