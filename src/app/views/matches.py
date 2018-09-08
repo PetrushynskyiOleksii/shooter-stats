@@ -10,7 +10,7 @@ from . import shooter_api
 
 
 @shooter_api.route('/servers/<string:endpoint>/matches', methods=['GET'])
-def get_matches(endpoint):
+def get_server_matches(endpoint):
     """Return all existing matches for a specify server."""
     matches = Match.get_server_matches(endpoint)
 
