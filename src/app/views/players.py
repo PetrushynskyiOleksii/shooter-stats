@@ -3,7 +3,7 @@
 from flask import jsonify, request
 
 from app.models import Player
-from app.schemes import player_schema
+from app.responses import paginate_response
 from . import shooter_api
 
 
@@ -14,8 +14,8 @@ def get_player(nickname):
     if player is None:
         return jsonify({'message': 'Player instance could not be found.'}), 404
 
-    response = player.to_dict(player_schema)
-    return jsonify(response.data), 200
+    response = player.to_dict()
+    return jsonify(response), 200
 
 
 @shooter_api.route('/players', methods=['POST'])
@@ -25,7 +25,7 @@ def create_player():
     if not json_data:
         return jsonify({'error': 'No input data provided.'}), 400
     # Validate and deserialize input
-    data, errors = Player.from_dict(json_data, player_schema)
+    data, errors = Player.from_dict(json_data)
     if errors:
         return jsonify(errors), 400
 
@@ -36,17 +36,17 @@ def create_player():
     # Create a new player instance
     player = Player(data)
 
-    response = player.to_dict(player_schema)
-    return jsonify(response.data), 201
+    response = player.to_dict()
+    return jsonify(response), 201
 
 
-@shooter_api.route('/servers/<string:endpoint>/top_players', methods=['GET'])
-def get_top_server_players(endpoint):
-    """Return list of top killers/suiciders/assisters on server."""
+@shooter_api.route('/servers/<string:endpoint>/players', methods=['GET'])
+def get_server_players(endpoint):
+    """Return list of players on server."""
     # TODO: check for exist endpoint
-    order_by = request.args.get('order_by', 'kills')
-    limit = int(request.args.get('limit', 25))
-    players = Player.get_top_server_players(endpoint, order_by=order_by, limit=limit)
+    page = request.args.get('page', 1, type=int)
+    order_by = request.args.get('order_by')
+    players = Player.get_server_players(endpoint, order_by=order_by)
 
-    response = player_schema.dump(players, many=True)
-    return jsonify(response.data), 200
+    response = paginate_response(players, page=page)
+    return jsonify(response), 200

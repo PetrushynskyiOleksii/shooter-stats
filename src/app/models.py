@@ -1,7 +1,8 @@
 """Collections of database models."""
+from sqlalchemy import func
 
 from . import db
-from .schemes import match_schema
+from .schemes import match_schema, ServerSchema, PlayerSchema
 
 
 class BaseManager(object):
@@ -12,16 +13,16 @@ class BaseManager(object):
         db.session.add(self)
         db.session.commit()
 
-    @staticmethod
-    def from_dict(json_data, schema):
+    @classmethod
+    def from_dict(cls, json_data):
         """Return instance as python's data types."""
-        schema_response = schema.load(json_data)
+        schema_response = cls.schema.load(json_data)
         return schema_response
 
-    def to_dict(self, schema):
+    def to_dict(self):
         """Return instance as JSON dict."""
-        data = schema.dump(self)
-        return data
+        schema_response = self.schema.dump(self)
+        return schema_response.data
 
 
 class Server(db.Model, BaseManager):
@@ -32,6 +33,8 @@ class Server(db.Model, BaseManager):
     endpoint = db.Column(db.String(64), nullable=False, primary_key=True)
     title = db.Column(db.String(64), nullable=False)
 
+    schema = ServerSchema()
+
     def __init__(self, data):
         """Server model constructor."""
         self.endpoint = data.get('endpoint')
@@ -41,7 +44,7 @@ class Server(db.Model, BaseManager):
 
     def __repr__(self):
         """Return server instance as a string."""
-        return f'{self.title} ({self.id})'
+        return f'{self.title}'
 
     @classmethod
     def get_by_endpoint(cls, endpoint):
@@ -50,9 +53,16 @@ class Server(db.Model, BaseManager):
         return server
 
     @classmethod
-    def get_all(cls):
+    def get_all(cls, order_by):
         """Retrieve all existing servers from database."""
-        servers = db.session.query(cls).all()
+        query = db.session.query(cls)
+        if order_by == 'title':
+            servers = query.order_by(cls.title)
+        elif order_by == 'endpoint':
+            servers = query.order_by(cls.endpoint)
+        else:
+            servers = query.order_by(func.random())
+
         return servers
 
     def update(self, new_title):
@@ -74,6 +84,8 @@ class Player(db.Model, BaseManager):
     deaths = db.Column(db.Integer, nullable=False, default=0)
     assists = db.Column(db.Integer, nullable=False, default=0)
 
+    schema = PlayerSchema()
+
     def __init__(self, data):
         """Player model constructor."""
         self.nickname = data.get('nickname')
@@ -91,20 +103,20 @@ class Player(db.Model, BaseManager):
         return player
 
     @classmethod
-    def get_top_server_players(cls, endpoint, order_by, limit):
-        """Retrieve limited list of top players by kills/deaths/assists."""
-        top_players = db.session.query(cls).join(cls.matches).filter(
+    def get_server_players(cls, endpoint, order_by):
+        """Retrieve ordered list of server players."""
+        players = db.session.query(cls).join(cls.matches).filter(
             Match.server_endpoint == endpoint
         )
 
         if order_by == 'kills':
-            top_players = top_players.order_by(Player.kills.desc())
+            players = players.order_by(Player.kills.desc())
         elif order_by == 'deaths':
-            top_players = top_players.order_by(Player.deaths.desc())
+            players = players.order_by(Player.deaths.desc())
         elif order_by == 'assists':
-            top_players = top_players.order_by(Player.assists.desc())
+            players = players.order_by(Player.assists.desc())
 
-        return top_players.all()[:limit]
+        return players
 
 
 scoreboards = db.Table(
@@ -149,17 +161,17 @@ class Match(db.Model):
     @classmethod
     def get_player_matches(cls, nickname):
         """Retrieve player matches from database."""
-        matches = db.session.query(cls).join(cls.scoreboard).filter(
-            Player.nickname == nickname
-        ).all()
+        query = db.session.query(cls).join(cls.scoreboard).filter(Player.nickname == nickname)
+        matches = query.order_by(cls.end_time.desc())
+
         return matches
 
     @classmethod
     def get_server_matches(cls, endpoint):
-        """Retrieve server matches from database."""
-        matches = db.session.query(cls).join(Server).filter(  # TODO: improve query
-            Server.endpoint == endpoint
-        ).all()
+        """Retrieve server matches ordered by end_time from database."""
+        query = db.session.query(cls).join(Server).filter(Server.endpoint == endpoint)
+        matches = query.order_by(cls.end_time.desc())
+
         return matches
 
     @classmethod
