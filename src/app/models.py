@@ -5,13 +5,8 @@ from . import db
 from .schemes import ServerSchema, PlayerSchema, MatchSchema
 
 
-class BaseManager(object):
+class SchemaManager(object):
     """Base query manager."""
-
-    def _save(self):
-        """Save instance in database."""
-        db.session.add(self)
-        db.session.commit()
 
     @classmethod
     def from_dict(cls, json_data):
@@ -25,7 +20,7 @@ class BaseManager(object):
         return schema_response.data
 
 
-class Server(db.Model, BaseManager):
+class Server(db.Model, SchemaManager):
     """Server database representation."""
 
     __tablename__ = 'servers'
@@ -40,7 +35,8 @@ class Server(db.Model, BaseManager):
         self.endpoint = data.get('endpoint')
         self.title = data.get('title')
 
-        self._save()
+        db.session.add(self)
+        db.session.commit()
 
     def __repr__(self):
         """Return server instance as a string."""
@@ -74,7 +70,7 @@ class Server(db.Model, BaseManager):
         return self.title
 
 
-class Player(db.Model, BaseManager):
+class Player(db.Model, SchemaManager):
     """Player database representation."""
 
     __tablename__ = 'players'
@@ -90,7 +86,8 @@ class Player(db.Model, BaseManager):
         """Player model constructor."""
         self.nickname = data.get('nickname')
 
-        self._save()
+        db.session.add(self)
+        db.session.commit()
 
     def __repr__(self):
         """Return player instance as a string."""
@@ -128,7 +125,7 @@ scoreboards = db.Table(
 )
 
 
-class Match(db.Model, BaseManager):
+class Match(db.Model, SchemaManager):
     """Match database representation."""
 
     __tablename__ = 'matches'
@@ -155,11 +152,6 @@ class Match(db.Model, BaseManager):
         """Return match instance as a string."""
         return f'{self.title}'
 
-    def save(self):
-        """Save match instance to database."""
-        db.session.add(self)
-        db.session.commit()
-
     @classmethod
     def get_player_matches(cls, nickname):
         """Retrieve player matches from database."""
@@ -181,3 +173,8 @@ class Match(db.Model, BaseManager):
         """Retrieve single match instance from database."""
         match = db.session.query(cls).filter(cls.id == id).first()
         return match
+
+    def save(self):
+        """Save match instance to database."""
+        db.session.add(self)
+        db.session.commit()
