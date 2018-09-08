@@ -4,7 +4,7 @@ from flask import jsonify, request
 
 from app import db
 from app.models import Match, Player
-from app.responses import paginate_response
+from app.utils import paginate_response
 from . import shooter_api
 
 
