@@ -42,6 +42,13 @@ class Server(db.Model, SchemaManager):
         """Return server instance as a string."""
         return f'{self.title}'
 
+    def _set_stats_attrs(self, attrs):
+        """Set attributes that display additional statistic."""
+        setattr(self, 'min_match_time', attrs.min_match_time)
+        setattr(self, 'max_match_time', attrs.max_match_time)
+        setattr(self, 'avg_match_time', attrs.avg_match_time)
+        setattr(self, 'total_matches', attrs.total_matches)
+
     @classmethod
     def get(cls, endpoint):
         """Retrieve single server instance from database."""
@@ -61,10 +68,7 @@ class Server(db.Model, SchemaManager):
             .first()
 
         server = result.Server
-        setattr(server, 'min_match_time', result.min_match_time)
-        setattr(server, 'max_match_time', result.max_match_time)
-        setattr(server, 'avg_match_time', result.avg_match_time)
-        setattr(server, 'total_matches', result.total_matches)
+        server._set_stats_attrs(result)
 
         return server
 
