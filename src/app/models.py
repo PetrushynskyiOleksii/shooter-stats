@@ -119,9 +119,26 @@ class Player(db.Model, SchemaManager):
         return f'{self.nickname}'
 
     @classmethod
-    def get_by_nickname(cls, nickname):
+    def get(cls, nickname):
         """Retrieve single player instance from database."""
         player = db.session.query(cls).filter(cls.nickname == nickname).first()
+        return player
+
+    @classmethod
+    def get_player_stats(cls, nickname):
+        """Retrieve single server instance from database."""
+        result = db.session.query(
+            cls, func.count(Match.id).label('total_matches'),
+            func.max(Scoreboard.kills).label('max_kills_per_match'),
+            func.max(Scoreboard.deaths).label('max_deaths_per_match'),
+            func.max(Scoreboard.assists).label('max_assists_per_match'),
+            func.max(Match.elapsed_time).label('max_match_time'),
+            func.min(Match.elapsed_time).label('min_match_time'))\
+            .join(Scoreboard).group_by(cls)\
+            .filter(cls.nickname == nickname).first()
+
+        player = result.Player
+
         return player
 
     @classmethod
