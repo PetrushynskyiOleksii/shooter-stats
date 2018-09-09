@@ -57,7 +57,7 @@ class Server(db.Model, SchemaManager):
 
     @classmethod
     def get_server_stats(cls, endpoint):
-        """Retrieve single server instance from database."""
+        """Retrieve single server instance with additional statistic."""
         result = db.session.query(
             cls, func.avg(Match.elapsed_time).label('avg_match_time'),
             func.max(Match.elapsed_time).label('max_match_time'),
@@ -118,6 +118,15 @@ class Player(db.Model, SchemaManager):
         """Return player instance as a string."""
         return f'{self.nickname}'
 
+    def _set_stats_attrs(self, attrs):
+        """Set attributes that display additional statistic."""
+        setattr(self, 'total_matches', attrs.total_matches)
+        setattr(self, 'max_kills_per_match', attrs.max_kills_per_match)
+        setattr(self, 'max_deaths_per_match', attrs.max_deaths_per_match)
+        setattr(self, 'max_assists_per_match', attrs.max_assists_per_match)
+        setattr(self, 'max_match_time', attrs.max_match_time)
+        setattr(self, 'min_match_time', attrs.min_match_time)
+
     @classmethod
     def get(cls, nickname):
         """Retrieve single player instance from database."""
@@ -126,7 +135,7 @@ class Player(db.Model, SchemaManager):
 
     @classmethod
     def get_player_stats(cls, nickname):
-        """Retrieve single server instance from database."""
+        """Retrieve single server instance with additional statistic."""
         result = db.session.query(
             cls, func.count(Match.id).label('total_matches'),
             func.max(Scoreboard.kills).label('max_kills_per_match'),
@@ -138,6 +147,7 @@ class Player(db.Model, SchemaManager):
             .filter(cls.nickname == nickname).first()
 
         player = result.Player
+        player._set_stats_attrs(result)
 
         return player
 
