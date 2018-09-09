@@ -11,6 +11,7 @@ class PlayerSchema(Schema):
     """Serializer schema for player JSON representation."""
 
     nickname = fields.Str(required=True)
+    player_nickname = fields.Str(dump_only=True)
     kills = fields.Int()
     deaths = fields.Int()
     assists = fields.Int()
@@ -67,7 +68,7 @@ class MatchSchema(Schema):
     start_time = fields.DateTime(required=True)
     end_time = fields.DateTime(required=True)
     elapsed_time = fields.TimeDelta(dump_only=True)
-    players = fields.Nested(PlayerSchema, many=True)
+    players = fields.Nested(PlayerSchema, many=True, exclude='nickname')
 
     @validates_schema
     def validate_time(self, data):
