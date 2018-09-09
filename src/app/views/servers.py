@@ -30,7 +30,7 @@ def create_server():
     if errors:
         return jsonify(errors), 400
 
-    server = Server.get_by_endpoint(data.get('endpoint'))
+    server = Server.get(data.get('endpoint'))
     if server:
         return jsonify({'error': 'Server with this endpoint already exists.'}), 400
 

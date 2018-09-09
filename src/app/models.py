@@ -43,7 +43,7 @@ class Server(db.Model, SchemaManager):
         return f'{self.title}'
 
     @classmethod
-    def get_by_endpoint(cls, endpoint):
+    def get(cls, endpoint):
         """Retrieve single server instance from database."""
         server = db.session.query(cls).filter(cls.endpoint == endpoint).first()
         return server
