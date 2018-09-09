@@ -1,5 +1,5 @@
 """Collections of database models."""
-from sqlalchemy import func
+from sqlalchemy import func, distinct
 
 from . import db
 from .schemes import ServerSchema, PlayerSchema, MatchSchema
@@ -48,6 +48,7 @@ class Server(db.Model, SchemaManager):
         setattr(self, 'max_match_time', attrs.max_match_time)
         setattr(self, 'avg_match_time', attrs.avg_match_time)
         setattr(self, 'total_matches', attrs.total_matches)
+        setattr(self, 'total_players', attrs.total_players)
 
     @classmethod
     def get(cls, endpoint):
@@ -60,9 +61,11 @@ class Server(db.Model, SchemaManager):
         """Retrieve single server instance with additional statistic."""
         result = db.session.query(
             cls, func.avg(Match.elapsed_time).label('avg_match_time'),
+            func.count(distinct(Scoreboard.player)).label('total_players'),
             func.max(Match.elapsed_time).label('max_match_time'),
             func.min(Match.elapsed_time).label('min_match_time'),
             func.count(Match.id).label('total_matches'))\
+            .join(Match.players)\
             .filter(cls.endpoint == endpoint)\
             .group_by(cls)\
             .first()
