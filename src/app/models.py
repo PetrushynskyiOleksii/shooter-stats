@@ -49,6 +49,26 @@ class Server(db.Model, SchemaManager):
         return server
 
     @classmethod
+    def get_server_stats(cls, endpoint):
+        """Retrieve single server instance from database."""
+        result = db.session.query(
+            cls, func.avg(Match.elapsed_time).label('avg_match_time'),
+            func.max(Match.elapsed_time).label('max_match_time'),
+            func.min(Match.elapsed_time).label('min_match_time'),
+            func.count(Match.id).label('total_matches'))\
+            .filter(cls.endpoint == endpoint)\
+            .group_by(cls)\
+            .first()
+
+        server = result.Server
+        setattr(server, 'min_match_time', result.min_match_time)
+        setattr(server, 'max_match_time', result.max_match_time)
+        setattr(server, 'avg_match_time', result.avg_match_time)
+        setattr(server, 'total_matches', result.total_matches)
+
+        return server
+
+    @classmethod
     def get_all(cls, order_by):
         """Retrieve all existing servers from database."""
         query = db.session.query(cls)

@@ -44,7 +44,7 @@ def create_server():
 @shooter_api.route('/servers/<string:endpoint>', methods=['GET', 'PATCH'])
 def get_or_update_server(endpoint):
     """Retrieve or update single server instance in database."""
-    server = Server.get_by_endpoint(endpoint)
+    server = Server.get_server_stats(endpoint)
     if server is None:
         return jsonify({'message': 'Server instance could not be found.'}), 404
 
