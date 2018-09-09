@@ -155,6 +155,7 @@ class Match(db.Model, SchemaManager):
     title = db.Column(db.String(48), nullable=False)
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
+    elapsed_time = db.Column(db.Interval, nullable=False)
     server_endpoint = db.Column(db.String(64), db.ForeignKey('servers.endpoint'))
     server = db.relationship('Server', backref=db.backref('matches', lazy='subquery'))
     players = db.relationship('Scoreboard', back_populates='match')
@@ -167,6 +168,7 @@ class Match(db.Model, SchemaManager):
         self.start_time = data.get('start_time')
         self.end_time = data.get('end_time')
         self.server_endpoint = data.get('server')
+        self.elapsed_time = self.end_time - self.start_time
 
     def __repr__(self):
         """Return match instance as a string."""

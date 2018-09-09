@@ -66,12 +66,8 @@ class MatchSchema(Schema):
     server_endpoint = fields.Nested(ServerSchema, only='endpoint', attribute='server')
     start_time = fields.DateTime(required=True)
     end_time = fields.DateTime(required=True)
-    elapsed_time = fields.Method('get_elapsed_time', dump_only=True)
+    elapsed_time = fields.TimeDelta()
     players = fields.Nested(PlayerSchema, many=True)
-
-    def get_elapsed_time(self, obj):
-        """Return elapsed time during match."""
-        return str(obj.end_time - obj.start_time)
 
     @validates_schema
     def validate_time(self, data):
