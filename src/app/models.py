@@ -172,7 +172,7 @@ class Match(db.Model, SchemaManager):
     @classmethod
     def get_player_matches(cls, nickname):
         """Retrieve player matches from database."""
-        query = db.session.query(cls).join(cls.scoreboard).filter(Player.nickname == nickname)
+        query = db.session.query(cls).join(cls.players).filter(Player.nickname == nickname)
         matches = query.order_by(cls.end_time.desc())
 
         return matches
