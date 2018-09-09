@@ -41,11 +41,10 @@ class ServerSchema(Schema):
 
     endpoint = fields.Str(required=True)
     title = fields.Str(required=True)
-    total_matches = fields.Method('get_total_matches', dump_only=True)
-
-    def get_total_matches(self, obj):
-        """Return count of matches played on server."""
-        return len(obj.matches)
+    total_matches = fields.Int(dump_only=True)
+    min_match_time = fields.TimeDelta(dump_only=True)
+    max_match_time = fields.TimeDelta(dump_only=True)
+    avg_match_time = fields.TimeDelta(dump_only=True)
 
     @validates('endpoint')
     def validate_endpoint(self, endpoint):
