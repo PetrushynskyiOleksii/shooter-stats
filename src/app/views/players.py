@@ -46,7 +46,18 @@ def get_server_players(endpoint):
     # TODO: check for exist endpoint
     page = request.args.get('page', 1, type=int)
     order_by = request.args.get('order_by')
-    players = Player.get_server_players(endpoint, order_by=order_by)
+    players = Player.get_all(order_by=order_by, endpoint=endpoint)
+
+    response = paginate_response(players, page=page)
+    return jsonify(response), 200
+
+
+@shooter_api.route('/players', methods=['GET'])
+def get_players():
+    """Return all existing players in database."""
+    page = request.args.get('page', 1, type=int)
+    order_by = request.args.get('order_by')
+    players = Player.get_all(order_by=order_by)
 
     response = paginate_response(players, page=page)
     return jsonify(response), 200
