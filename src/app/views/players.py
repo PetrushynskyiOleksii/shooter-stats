@@ -10,7 +10,7 @@ from . import shooter_api
 @shooter_api.route('/players/<string:nickname>', methods=['GET'])
 def get_player(nickname):
     """Retrieve single player instance from database."""
-    player = Player.get_by_nickname(nickname)
+    player = Player.get_player_stats(nickname)
     if player is None:
         return jsonify({'message': 'Player instance could not be found.'}), 404
 
@@ -29,7 +29,7 @@ def create_player():
     if errors:
         return jsonify(errors), 400
 
-    player = Player.get_by_nickname(data.get('nickname'))
+    player = Player.get(data.get('nickname'))
     if player:
         return jsonify({'error': 'Player with this nickname already exists.'}), 400
 

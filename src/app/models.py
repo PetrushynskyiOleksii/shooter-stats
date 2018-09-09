@@ -1,5 +1,5 @@
 """Collections of database models."""
-from sqlalchemy import func
+from sqlalchemy import func, distinct
 
 from . import db
 from .schemes import ServerSchema, PlayerSchema, MatchSchema
@@ -42,10 +42,37 @@ class Server(db.Model, SchemaManager):
         """Return server instance as a string."""
         return f'{self.title}'
 
+    def _set_stats_attrs(self, attrs):
+        """Set attributes that display additional statistic."""
+        setattr(self, 'min_match_time', attrs.min_match_time)
+        setattr(self, 'max_match_time', attrs.max_match_time)
+        setattr(self, 'avg_match_time', attrs.avg_match_time)
+        setattr(self, 'total_matches', attrs.total_matches)
+        setattr(self, 'total_players', attrs.total_players)
+
     @classmethod
-    def get_by_endpoint(cls, endpoint):
+    def get(cls, endpoint):
         """Retrieve single server instance from database."""
         server = db.session.query(cls).filter(cls.endpoint == endpoint).first()
+        return server
+
+    @classmethod
+    def get_server_stats(cls, endpoint):
+        """Retrieve single server instance with additional statistic."""
+        result = db.session.query(
+            cls, func.avg(Match.elapsed_time).label('avg_match_time'),
+            func.count(distinct(Scoreboard.player)).label('total_players'),
+            func.max(Match.elapsed_time).label('max_match_time'),
+            func.min(Match.elapsed_time).label('min_match_time'),
+            func.count(Match.id).label('total_matches'))\
+            .join(Match.players)\
+            .filter(cls.endpoint == endpoint)\
+            .group_by(cls)\
+            .first()
+
+        server = result.Server
+        server._set_stats_attrs(result)
+
         return server
 
     @classmethod
@@ -94,10 +121,37 @@ class Player(db.Model, SchemaManager):
         """Return player instance as a string."""
         return f'{self.nickname}'
 
+    def _set_stats_attrs(self, attrs):
+        """Set attributes that display additional statistic."""
+        setattr(self, 'total_matches', attrs.total_matches)
+        setattr(self, 'max_kills_per_match', attrs.max_kills_per_match)
+        setattr(self, 'max_deaths_per_match', attrs.max_deaths_per_match)
+        setattr(self, 'max_assists_per_match', attrs.max_assists_per_match)
+        setattr(self, 'max_match_time', attrs.max_match_time)
+        setattr(self, 'min_match_time', attrs.min_match_time)
+
     @classmethod
-    def get_by_nickname(cls, nickname):
+    def get(cls, nickname):
         """Retrieve single player instance from database."""
         player = db.session.query(cls).filter(cls.nickname == nickname).first()
+        return player
+
+    @classmethod
+    def get_player_stats(cls, nickname):
+        """Retrieve single server instance with additional statistic."""
+        result = db.session.query(
+            cls, func.count(Match.id).label('total_matches'),
+            func.max(Scoreboard.kills).label('max_kills_per_match'),
+            func.max(Scoreboard.deaths).label('max_deaths_per_match'),
+            func.max(Scoreboard.assists).label('max_assists_per_match'),
+            func.max(Match.elapsed_time).label('max_match_time'),
+            func.min(Match.elapsed_time).label('min_match_time'))\
+            .join(Scoreboard).group_by(cls)\
+            .filter(cls.nickname == nickname).first()
+
+        player = result.Player
+        player._set_stats_attrs(result)
+
         return player
 
     @classmethod
@@ -155,6 +209,7 @@ class Match(db.Model, SchemaManager):
     title = db.Column(db.String(48), nullable=False)
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
+    elapsed_time = db.Column(db.Interval, nullable=False)
     server_endpoint = db.Column(db.String(64), db.ForeignKey('servers.endpoint'))
     server = db.relationship('Server', backref=db.backref('matches', lazy='subquery'))
     players = db.relationship('Scoreboard', back_populates='match')
@@ -167,6 +222,7 @@ class Match(db.Model, SchemaManager):
         self.start_time = data.get('start_time')
         self.end_time = data.get('end_time')
         self.server_endpoint = data.get('server')
+        self.elapsed_time = self.end_time - self.start_time
 
     def __repr__(self):
         """Return match instance as a string."""

@@ -49,7 +49,6 @@ def create_match(endpoint):
 
         match.players.append(match_player)
 
-    # match.save()
     response = match.to_dict()
 
     return jsonify(response), 201
