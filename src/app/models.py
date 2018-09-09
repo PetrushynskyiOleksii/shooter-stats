@@ -101,11 +101,14 @@ class Player(db.Model, SchemaManager):
         return player
 
     @classmethod
-    def get_server_players(cls, endpoint, order_by):
-        """Retrieve ordered list of server players."""
-        players = db.session.query(cls).join(cls.matches).filter(
-            Match.server_endpoint == endpoint
-        )
+    def get_all(cls, order_by, endpoint=None):
+        """Retrieve ordered list of players."""
+        if endpoint:
+            players = db.session.query(cls).join(cls.matches).filter(
+                Match.server_endpoint == endpoint
+            )
+        else:
+            players = db.session.query(cls).join(cls.matches)
 
         if order_by == 'kills':
             players = players.order_by(Player.kills.desc())
