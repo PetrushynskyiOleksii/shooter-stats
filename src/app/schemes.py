@@ -45,6 +45,7 @@ class ServerSchema(Schema):
     endpoint = fields.Str(required=True)
     title = fields.Str(required=True)
     total_matches = fields.Int(dump_only=True)
+    total_players = fields.Int(dump_only=True)
     min_match_time = fields.TimeDelta(dump_only=True)
     max_match_time = fields.TimeDelta(dump_only=True)
     avg_match_time = fields.TimeDelta(dump_only=True)
