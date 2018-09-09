@@ -2,16 +2,11 @@
 from sqlalchemy import func
 
 from . import db
-from .schemes import match_schema, ServerSchema, PlayerSchema
+from .schemes import ServerSchema, PlayerSchema, MatchSchema
 
 
-class BaseManager(object):
+class SchemaManager(object):
     """Base query manager."""
-
-    def _save(self):
-        """Save instance in database."""
-        db.session.add(self)
-        db.session.commit()
 
     @classmethod
     def from_dict(cls, json_data):
@@ -25,7 +20,7 @@ class BaseManager(object):
         return schema_response.data
 
 
-class Server(db.Model, BaseManager):
+class Server(db.Model, SchemaManager):
     """Server database representation."""
 
     __tablename__ = 'servers'
@@ -40,7 +35,8 @@ class Server(db.Model, BaseManager):
         self.endpoint = data.get('endpoint')
         self.title = data.get('title')
 
-        self._save()
+        db.session.add(self)
+        db.session.commit()
 
     def __repr__(self):
         """Return server instance as a string."""
@@ -74,7 +70,7 @@ class Server(db.Model, BaseManager):
         return self.title
 
 
-class Player(db.Model, BaseManager):
+class Player(db.Model, SchemaManager):
     """Player database representation."""
 
     __tablename__ = 'players'
@@ -83,6 +79,7 @@ class Player(db.Model, BaseManager):
     kills = db.Column(db.Integer, nullable=False, default=0)
     deaths = db.Column(db.Integer, nullable=False, default=0)
     assists = db.Column(db.Integer, nullable=False, default=0)
+    matches = db.relationship('Scoreboard', back_populates='player')
 
     schema = PlayerSchema()
 
@@ -90,7 +87,8 @@ class Player(db.Model, BaseManager):
         """Player model constructor."""
         self.nickname = data.get('nickname')
 
-        self._save()
+        db.session.add(self)
+        db.session.commit()
 
     def __repr__(self):
         """Return player instance as a string."""
@@ -103,11 +101,14 @@ class Player(db.Model, BaseManager):
         return player
 
     @classmethod
-    def get_server_players(cls, endpoint, order_by):
-        """Retrieve ordered list of server players."""
-        players = db.session.query(cls).join(cls.matches).filter(
-            Match.server_endpoint == endpoint
-        )
+    def get_all(cls, order_by, endpoint=None):
+        """Retrieve ordered list of players."""
+        if endpoint:
+            players = db.session.query(cls).join(cls.matches).filter(
+                Match.server_endpoint == endpoint
+            )
+        else:
+            players = db.session.query(cls).join(cls.matches)
 
         if order_by == 'kills':
             players = players.order_by(Player.kills.desc())
@@ -119,16 +120,33 @@ class Player(db.Model, BaseManager):
         return players
 
 
-scoreboards = db.Table(
-    'scoreboards',
-    db.Column('match_id', db.Integer, db.ForeignKey('matches.id'), primary_key=True),
-    db.Column('player_nickname', db.String(128),
-              db.ForeignKey('players.nickname'), primary_key=True
-              )
-)
+class Scoreboard(db.Model):
+    """Scoreboard database representation."""
+
+    __tablename__ = 'scoreboards'
+
+    match_id = db.Column(db.Integer, db.ForeignKey('matches.id'), primary_key=True)
+    player_nickname = db.Column(db.String(128), db.ForeignKey('players.nickname'),
+                                primary_key=True)
+    match = db.relationship('Match', back_populates='players')
+    player = db.relationship('Player', back_populates='matches')
+    kills = db.Column(db.Integer, nullable=False, default=0)
+    deaths = db.Column(db.Integer, nullable=False, default=0)
+    assists = db.Column(db.Integer, nullable=False, default=0)
+
+    def __init__(self, player_data, match_id):
+        """Scoreboard model constructor."""
+        self.player_nickname = player_data.get('nickname')
+        self.kills = player_data.get('kills')
+        self.deaths = player_data.get('deaths')
+        self.assists = player_data.get('assists')
+        self.match_id = match_id
+
+        db.session.add(self)
+        db.session.commit()
 
 
-class Match(db.Model):
+class Match(db.Model, SchemaManager):
     """Match database representation."""
 
     __tablename__ = 'matches'
@@ -139,8 +157,9 @@ class Match(db.Model):
     end_time = db.Column(db.DateTime, nullable=False)
     server_endpoint = db.Column(db.String(64), db.ForeignKey('servers.endpoint'))
     server = db.relationship('Server', backref=db.backref('matches', lazy='subquery'))
-    scoreboard = db.relationship('Player', secondary=scoreboards, lazy='subquery',
-                                 backref=db.backref('matches', lazy=True))
+    players = db.relationship('Scoreboard', back_populates='match')
+
+    schema = MatchSchema()
 
     def __init__(self, data):
         """Match model constructor."""
@@ -153,15 +172,10 @@ class Match(db.Model):
         """Return match instance as a string."""
         return f'{self.title}'
 
-    def save(self):
-        """Save match instance to database."""
-        db.session.add(self)
-        db.session.commit()
-
     @classmethod
     def get_player_matches(cls, nickname):
         """Retrieve player matches from database."""
-        query = db.session.query(cls).join(cls.scoreboard).filter(Player.nickname == nickname)
+        query = db.session.query(cls).join(cls.players).filter(Player.nickname == nickname)
         matches = query.order_by(cls.end_time.desc())
 
         return matches
@@ -180,13 +194,7 @@ class Match(db.Model):
         match = db.session.query(cls).filter(cls.id == id).first()
         return match
 
-    def to_dict(self):
-        """Return match instance as JSON dict."""
-        data = match_schema.dump(self)
-        return data
-
-    @staticmethod
-    def from_dict(json_data):
-        """Return match instance as python's data types."""
-        schema_response = match_schema.load(json_data)
-        return schema_response
+    def save(self):
+        """Save match instance to database."""
+        db.session.add(self)
+        db.session.commit()

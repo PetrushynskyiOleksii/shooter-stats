@@ -67,7 +67,7 @@ class MatchSchema(Schema):
     start_time = fields.DateTime(required=True)
     end_time = fields.DateTime(required=True)
     elapsed_time = fields.Method('get_elapsed_time', dump_only=True)
-    scoreboard = fields.Nested(PlayerSchema, many=True)
+    players = fields.Nested(PlayerSchema, many=True)
 
     def get_elapsed_time(self, obj):
         """Return elapsed time during match."""

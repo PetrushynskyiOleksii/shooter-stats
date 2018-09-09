@@ -3,7 +3,7 @@
 from flask import jsonify, request
 
 from app.models import Server
-from app.responses import paginate_response
+from app.utils import paginate_response
 from . import shooter_api
 
 
