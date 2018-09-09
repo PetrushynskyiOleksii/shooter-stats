@@ -14,7 +14,13 @@ class PlayerSchema(Schema):
     kills = fields.Int()
     deaths = fields.Int()
     assists = fields.Int()
-    kda = fields.Method('get_kda')
+    kda = fields.Method('get_kda', dump_only=True)
+    total_matches = fields.Int(dump_only=True)
+    max_kills_per_match = fields.Int(dump_only=True)
+    max_deaths_per_match = fields.Int(dump_only=True)
+    max_assists_per_match = fields.Int(dump_only=True)
+    max_match_time = fields.TimeDelta(dump_only=True)
+    min_match_time = fields.TimeDelta(dump_only=True)
 
     def get_kda(self, obj):
         """Return KDA value."""
@@ -59,7 +65,7 @@ class MatchSchema(Schema):
     server_endpoint = fields.Nested(ServerSchema, only='endpoint', attribute='server')
     start_time = fields.DateTime(required=True)
     end_time = fields.DateTime(required=True)
-    elapsed_time = fields.TimeDelta()
+    elapsed_time = fields.TimeDelta(dump_only=True)
     players = fields.Nested(PlayerSchema, many=True)
 
     @validates_schema
