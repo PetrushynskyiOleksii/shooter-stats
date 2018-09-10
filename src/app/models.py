@@ -38,7 +38,7 @@ class Server(db.Model, SchemaManager):
         db.session.add(self)
         db.session.commit()
 
-    def __repr__(self):
+    def __str__(self):
         """Return server instance as a string."""
         return f'{self.title}'
 
@@ -117,7 +117,7 @@ class Player(db.Model, SchemaManager):
         db.session.add(self)
         db.session.commit()
 
-    def __repr__(self):
+    def __str__(self):
         """Return player instance as a string."""
         return f'{self.nickname}'
 
@@ -224,7 +224,7 @@ class Match(db.Model, SchemaManager):
         self.server_endpoint = data.get('server')
         self.elapsed_time = self.end_time - self.start_time
 
-    def __repr__(self):
+    def __str__(self):
         """Return match instance as a string."""
         return f'{self.title}'
 
