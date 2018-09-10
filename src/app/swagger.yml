@@ -1,0 +1,161 @@
+swagger: '2.0'
+
+info:
+  title: Shooter Stats API
+  version: '1.0'
+
+consumes:
+  - application/json
+produces:
+  - application/json
+
+paths:
+  /servers:
+    get:
+      operationId: app.views.servers.get_servers
+      summary: Returns a list of servers.
+      responses:
+        '200':
+          description: A JSON response with servers instances.
+    post:
+      operationId: app.views.servers.create_server
+      summary: Create a new server instance.
+      responses:
+        '201':
+          description: Server created.
+        '400':
+          description: 'Invalid input, server instance already exists.'
+  /servers/{endpoint}:
+    get:
+      operationId: app.views.servers.get_server
+      summary: Return a single server instance by *endpoint*.
+      parameters:
+        - name: endpoint
+          in: path
+          description: Server endpoint
+          type: string
+          required: true
+      responses:
+        '200':
+          description: A JSON response with single server instance and its statistic.
+        '404':
+          description: A server with the specified *endpoint* was not found.
+    patch:
+      operationId: app.views.servers.update_server
+      summary: Update server instance with the specified *endpoint*.
+      parameters:
+        - name: endpoint
+          in: path
+          description: Server endpoint
+          type: string
+          required: true
+      responses:
+        '200':
+          description: A JSON response with successfully updated server instances.
+        '400':
+          description: Invalid input.
+        '404':
+          description: A server with the specified *endpoint* was not found.
+
+  /players:
+    get:
+      operationId: app.views.players.get_players
+      summary: Returns a list of players.
+      responses:
+        '200':
+          description: A JSON response with players instances.
+    post:
+      operationId: app.views.players.create_player
+      summary: Create a new player instance.
+      responses:
+        '201':
+          description: Player created.
+        '400':
+          description: 'Invalid input, player instance already exists.'
+  /players/{nickname}:
+    get:
+      operationId: app.views.players.get_player
+      summary: Return a single player instance by *nickname*.
+      parameters:
+        - name: nickname
+          in: path
+          description: Player nickname
+          type: string
+          required: true
+      responses:
+        '200':
+          description: A JSON response with single player instance and its statistic.
+        '404':
+          description: A player with the specified *nickname* was not found.
+  /servers/{endpoint}/players:
+    get:
+      operationId: app.views.players.get_server_players
+      summary: Returns a list of server players.
+      parameters:
+        - name: endpoint
+          in: path
+          description: Server endpoint
+          type: string
+          required: true
+      responses:
+        '200':
+          description: A JSON response with players instances.
+
+  /servers/{endpoint}/matches:
+    get:
+      operationId: app.views.matches.get_server_matches
+      summary: Returns a list of server matches.
+      parameters:
+        - name: endpoint
+          in: path
+          description: Server endpoint
+          type: string
+          required: true
+      responses:
+        '200':
+          description: A JSON response with server matches instances.
+    post:
+      operationId: app.views.matches.create_match
+      summary: Create a new player instance.
+      parameters:
+        - name: endpoint
+          in: path
+          description: Server endpoint
+          type: string
+          required: true
+      responses:
+        '201':
+          description: Match created.
+  /players/{nickname}/matches:
+    get:
+      operationId: app.views.matches.get_player_matches
+      summary: Returns a list of server matches.
+      parameters:
+        - name: nickname
+          in: path
+          description: Player nickname
+          type: string
+          required: true
+      responses:
+        '200':
+          description: A JSON response with player matches instances.
+  /servers/{endpoint}/matches/{id}:
+    get:
+      operationId: app.views.matches.get_match
+      summary: Return a single player instance by *nickname*.
+      parameters:
+        - name: endpoint
+          in: path
+          description: Server endpoint
+          type: string
+          required: true
+        - name: id
+          in: path
+          description: Match id
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: A JSON response with single match instance.
+        '404':
+          description: A match with the specified *id* was not found.

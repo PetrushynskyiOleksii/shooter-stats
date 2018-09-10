@@ -5,10 +5,8 @@ from flask import jsonify, request
 from app import db
 from app.models import Match, Player, Scoreboard
 from app.utils import paginate_response
-from . import shooter_api
 
 
-@shooter_api.route('/servers/<string:endpoint>/matches/<int:id>', methods=['GET'])
 def get_match(endpoint, id):  # FIXME: endpoint arg
     """Return single match instance in JSON representation."""
     match = Match.get(id)
@@ -19,7 +17,6 @@ def get_match(endpoint, id):  # FIXME: endpoint arg
     return jsonify(response), 200
 
 
-@shooter_api.route('/servers/<string:endpoint>/matches', methods=['POST'])
 def create_match(endpoint):
     """Create a new match instance."""
     json_data = request.get_json()
@@ -54,7 +51,6 @@ def create_match(endpoint):
     return jsonify(response), 201
 
 
-@shooter_api.route('/players/<string:nickname>/matches', methods=['GET'])
 def get_player_matches(nickname):
     """Retrieve player matches from database."""
     page = request.args.get('page', 1, type=int)
@@ -64,7 +60,6 @@ def get_player_matches(nickname):
     return jsonify(response), 200
 
 
-@shooter_api.route('/servers/<string:endpoint>/matches', methods=['GET'])
 def get_server_matches(endpoint):
     """Return all existing matches for a specify server."""
     page = request.args.get('page', 1, type=int)
