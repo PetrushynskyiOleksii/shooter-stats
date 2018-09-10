@@ -1,6 +1,6 @@
 """The app configuration module."""
 
-from flask import Flask
+import connexion
 from flask_sqlalchemy import SQLAlchemy
 
 from settings import app_config
@@ -11,17 +11,16 @@ db = SQLAlchemy()
 
 def create_app(config_name):
     """Create FlaskAPI application."""
-    app = Flask(__name__)
+    app = connexion.App(__name__)
+    app.add_api('swagger.yml')
+    application = app.app
 
-    app.config.from_object(app_config[config_name])
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    application.config.from_object(app_config[config_name])
+    application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    db.init_app(app)
+    db.init_app(application)
 
-    from .views import shooter_api
-    app.register_blueprint(shooter_api, url_prefix='/')
-
-    return app
+    return application
 
 
 from .models import *
