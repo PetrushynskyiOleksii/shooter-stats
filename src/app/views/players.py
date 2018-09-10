@@ -4,10 +4,8 @@ from flask import jsonify, request
 
 from app.models import Player
 from app.utils import paginate_response
-from . import shooter_api
 
 
-@shooter_api.route('/players/<string:nickname>', methods=['GET'])
 def get_player(nickname):
     """Retrieve single player instance from database."""
     player = Player.get_player_stats(nickname)
@@ -18,7 +16,6 @@ def get_player(nickname):
     return jsonify(response), 200
 
 
-@shooter_api.route('/players', methods=['POST'])
 def create_player():
     """Create new player instance."""
     json_data = request.get_json()
@@ -40,7 +37,6 @@ def create_player():
     return jsonify(response), 201
 
 
-@shooter_api.route('/servers/<string:endpoint>/players', methods=['GET'])
 def get_server_players(endpoint):
     """Return list of players on server."""
     # TODO: check for exist endpoint
@@ -52,7 +48,6 @@ def get_server_players(endpoint):
     return jsonify(response), 200
 
 
-@shooter_api.route('/players', methods=['GET'])
 def get_players():
     """Return all existing players in database."""
     page = request.args.get('page', 1, type=int)

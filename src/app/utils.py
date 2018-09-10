@@ -5,6 +5,7 @@ from flask import url_for
 
 def paginate_response(data, page=1):
     """Return formatted responses with pagination data."""
+    # TODO:
     pagination = data.paginate(page, per_page=25, error_out=False)
     prev = None
     if pagination.has_prev:
