@@ -61,13 +61,14 @@ class Server(db.Model, SchemaManager):
         """Retrieve single server instance with additional statistic."""
         result = db.session.query(
             cls, func.avg(Match.elapsed_time).label('avg_match_time'),
-            func.count(distinct(Scoreboard.player)).label('total_players'),
             func.max(Match.elapsed_time).label('max_match_time'),
             func.min(Match.elapsed_time).label('min_match_time'),
-            func.count(Match.id).label('total_matches'))\
+            func.count(Match.id).label('total_matches'),
+            func.count(distinct(Scoreboard.player_nickname)).label('total_players'))\
+            .join(Match, Match.server_endpoint == cls.endpoint)\
             .join(Match.players)\
+            .group_by(cls.endpoint)\
             .filter(cls.endpoint == endpoint)\
-            .group_by(cls)\
             .first()
 
         server = result.Server
