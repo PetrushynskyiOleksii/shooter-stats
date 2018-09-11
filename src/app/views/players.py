@@ -39,7 +39,6 @@ def create_player():
 
 def get_server_players(endpoint):
     """Return list of players on server."""
-    # TODO: check for exist endpoint
     page = request.args.get('page', 1, type=int)
     order_by = request.args.get('order_by')
     players = Player.get_all(order_by=order_by, endpoint=endpoint)
