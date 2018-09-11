@@ -114,18 +114,6 @@ paths:
       responses:
         '200':
           description: A JSON response with server matches instances.
-    post:
-      operationId: app.views.matches.create_match
-      summary: Create a new player instance.
-      parameters:
-        - name: endpoint
-          in: path
-          description: Server endpoint
-          type: string
-          required: true
-      responses:
-        '201':
-          description: Match created.
   /players/{nickname}/matches:
     get:
       operationId: app.views.matches.get_player_matches
@@ -154,3 +142,10 @@ paths:
           description: A JSON response with single match instance.
         '404':
           description: A match with the specified *id* was not found.
+  /matches:
+    post:
+      operationId: app.views.matches.create_match
+      summary: Create a new player instance.
+      responses:
+        '201':
+          description: Match created.
