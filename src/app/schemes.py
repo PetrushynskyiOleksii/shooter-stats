@@ -3,7 +3,7 @@
 import re
 
 from marshmallow import (
-    Schema, fields, validates, ValidationError, validates_schema
+    Schema, fields, validates, ValidationError, validates_schema,
 )
 
 
@@ -64,8 +64,8 @@ class MatchSchema(Schema):
 
     id = fields.Int(dump_only=True)
     server_endpoint = fields.Str(required=True)
-    start_time = fields.DateTime(required=True)
-    end_time = fields.DateTime(required=True)
+    start_time = fields.DateTime(format='%d.%m.%Y %H:%M:%S', required=True)
+    end_time = fields.DateTime(format='%d.%m.%Y %H:%M:%S', required=True)
     elapsed_time = fields.TimeDelta(dump_only=True)
     players = fields.Nested(PlayerSchema, many=True, exclude='nickname')
 
