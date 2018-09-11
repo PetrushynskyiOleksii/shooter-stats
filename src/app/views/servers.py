@@ -56,7 +56,6 @@ def update_server(endpoint):
     # Update server instance
     json_data = request.get_json()
     server.update(json_data.get('title'))
-    # TODO: validate input
 
     response = server.to_dict()
     return jsonify(response), 200

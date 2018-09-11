@@ -71,8 +71,11 @@ class Server(db.Model, SchemaManager):
             .filter(cls.endpoint == endpoint)\
             .first()
 
-        server = result.Server
-        server._set_stats_attrs(result)
+        if result:
+            server = result.Server
+            server._set_stats_attrs(result)
+        else:
+            server = None
 
         return server
 
