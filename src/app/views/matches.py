@@ -17,7 +17,7 @@ def get_match(id):
     return jsonify(response), 200
 
 
-def create_match(endpoint):
+def create_match():
     """Create a new match instance."""
     json_data = request.get_json()
     if not json_data:
@@ -29,9 +29,7 @@ def create_match(endpoint):
         return jsonify(errors), 400
 
     # Create new match
-    data['server'] = endpoint
     match = Match(data)
-    match.save()
 
     # Update players data
     for player in data.get('players'):
