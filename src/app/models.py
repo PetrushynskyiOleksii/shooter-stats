@@ -65,7 +65,7 @@ class Server(db.Model, SchemaManager):
             func.min(Match.elapsed_time).label('min_match_time'),
             func.count(Match.id).label('total_matches'),
             func.count(distinct(Scoreboard.player_nickname)).label('total_players'))\
-            .join(Match, Match.server_endpoint == cls.endpoint)\
+            .join(Match)\
             .join(Match.players)\
             .group_by(cls.endpoint)\
             .filter(cls.endpoint == endpoint)\
@@ -137,6 +137,7 @@ class Player(db.Model, SchemaManager):
     @classmethod
     def get(cls, nickname):
         """Retrieve single player instance from database."""
+        # TODO: get
         player = db.session.query(cls).filter(cls.nickname == nickname).first()
         return player
 
@@ -162,11 +163,12 @@ class Player(db.Model, SchemaManager):
     def get_all(cls, order_by, endpoint=None):
         """Retrieve ordered list of players."""
         if endpoint:
-            players = db.session.query(cls).join(cls.matches).filter(
-                Match.server_endpoint == endpoint
-            )
+            players = db.session.query(cls) \
+                .join(Scoreboard) \
+                .join(Match) \
+                .filter(Match.server_endpoint == endpoint)
         else:
-            players = db.session.query(cls).join(cls.matches)
+            players = db.session.query(cls)
 
         if order_by == 'kills':
             players = players.order_by(Player.kills.desc())
