@@ -151,8 +151,11 @@ class Player(db.Model, SchemaManager):
             func.max(Scoreboard.assists).label('max_assists_per_match'),
             func.max(Match.elapsed_time).label('max_match_time'),
             func.min(Match.elapsed_time).label('min_match_time'))\
-            .join(Scoreboard).group_by(cls)\
-            .filter(cls.nickname == nickname).first()
+            .join(Scoreboard)\
+            .join(Match)\
+            .group_by(cls.nickname)\
+            .filter(cls.nickname == nickname)\
+            .first()
 
         player = result.Player
         player._set_stats_attrs(result)
