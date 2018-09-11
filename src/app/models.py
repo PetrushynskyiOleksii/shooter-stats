@@ -215,11 +215,11 @@ class Match(db.Model, SchemaManager):
     __tablename__ = 'matches'
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(48), nullable=False)
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
     elapsed_time = db.Column(db.Interval, nullable=False)
-    server_endpoint = db.Column(db.String(64), db.ForeignKey('servers.endpoint'))
+    server_endpoint = db.Column(db.String(64), db.ForeignKey('servers.endpoint'),
+                                nullable=False)
     server = db.relationship('Server', backref=db.backref('matches', lazy='subquery'))
     players = db.relationship('Scoreboard', back_populates='match')
 
@@ -227,11 +227,13 @@ class Match(db.Model, SchemaManager):
 
     def __init__(self, data):
         """Match model constructor."""
-        self.title = data.get('title')
         self.start_time = data.get('start_time')
         self.end_time = data.get('end_time')
-        self.server_endpoint = data.get('server')
+        self.server_endpoint = data.get('server_endpoint')
         self.elapsed_time = self.end_time - self.start_time
+
+        db.session.add(self)
+        db.session.commit()
 
     def __str__(self):
         """Return match instance as a string."""
@@ -258,8 +260,3 @@ class Match(db.Model, SchemaManager):
         """Retrieve single match instance from database."""
         match = db.session.query(cls).filter(cls.id == id).first()
         return match
-
-    def save(self):
-        """Save match instance to database."""
-        db.session.add(self)
-        db.session.commit()
