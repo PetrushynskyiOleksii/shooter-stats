@@ -63,7 +63,6 @@ class MatchSchema(Schema):
     """Serializer schema for match JSON representation."""
 
     id = fields.Int(dump_only=True)
-    title = fields.Str(required=True)
     server_endpoint = fields.Str(required=True)
     start_time = fields.DateTime(required=True)
     end_time = fields.DateTime(required=True)
