@@ -139,16 +139,11 @@ paths:
       responses:
         '200':
           description: A JSON response with player matches instances.
-  /servers/{endpoint}/matches/{id}:
+  /matches/{id}:
     get:
       operationId: app.views.matches.get_match
       summary: Return a single player instance by *nickname*.
       parameters:
-        - name: endpoint
-          in: path
-          description: Server endpoint
-          type: string
-          required: true
         - name: id
           in: path
           description: Match id

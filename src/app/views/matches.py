@@ -7,7 +7,7 @@ from app.models import Match, Player, Scoreboard
 from app.utils import paginate_response
 
 
-def get_match(endpoint, id):  # FIXME: endpoint arg
+def get_match(id):
     """Return single match instance in JSON representation."""
     match = Match.get(id)
     if match is None:
