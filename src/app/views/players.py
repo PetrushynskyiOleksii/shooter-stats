@@ -20,8 +20,8 @@ def create_player():
     """Create new player instance."""
     json_data = request.get_json()
     if not json_data:
-        return jsonify({'error': 'No input data provided.'}), 400
-    # Validate and deserialize input
+        return jsonify({'error': 'No required input data provided.'}), 400
+
     data, errors = Player.from_dict(json_data)
     if errors:
         return jsonify(errors), 400

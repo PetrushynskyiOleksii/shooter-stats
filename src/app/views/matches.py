@@ -21,10 +21,9 @@ def create_match(endpoint):
     """Create a new match instance."""
     json_data = request.get_json()
     if not json_data:
-        return jsonify({'error': 'No input data provided.'}), 400
+        return jsonify({'error': 'No required input data provided.'}), 400
 
     # TODO: check for exist endpoint
-    # Validate and deserialize  input
     data, errors = Match.from_dict(json_data)
     if errors:
         return jsonify(errors), 400

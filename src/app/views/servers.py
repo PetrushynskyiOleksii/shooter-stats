@@ -20,9 +20,8 @@ def create_server():
     """Create new server instance."""
     json_data = request.get_json()
     if not json_data:
-        return jsonify({'error': 'No input data provided.'}), 400
+        return jsonify({'error': 'No required input data provided.'}), 400
 
-    # Validate and deserialize input
     data, errors = Server.from_dict(json_data)
     if errors:
         return jsonify(errors), 400
