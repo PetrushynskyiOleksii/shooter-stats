@@ -1,10 +1,11 @@
 """Marshmallow schemes for API representations."""
 
 import re
+from datetime import timedelta
 
 from marshmallow import (
-    Schema, fields, validates, ValidationError, validates_schema,
-)
+    Schema, fields, validates, ValidationError,
+    validates_schema, post_dump)
 
 
 class PlayerSchema(Schema):
@@ -39,6 +40,12 @@ class PlayerSchema(Schema):
             message = 'Nickname must contains only chars or digits.'
             raise ValidationError(message)
 
+    @post_dump
+    def format_time_output(self, match):
+        """Format time fields for output."""
+        match['max_match_time'] = str(timedelta(seconds=int(match['max_match_time'])))
+        match['min_match_time'] = str(timedelta(seconds=int(match['min_match_time'])))
+
 
 class ServerSchema(Schema):
     """Serializer schema for server JSON representation."""
@@ -58,6 +65,13 @@ class ServerSchema(Schema):
             message = 'Endpoint must match template: domain-port.'
             raise ValidationError(message)
 
+    @post_dump
+    def format_time_output(self, match):
+        """Format time fields for output."""
+        match['min_match_time'] = str(timedelta(seconds=int(match['min_match_time'])))
+        match['max_match_time'] = str(timedelta(seconds=int(match['max_match_time'])))
+        match['avg_match_time'] = str(timedelta(seconds=int(match['avg_match_time'])))
+
 
 class MatchSchema(Schema):
     """Serializer schema for match JSON representation."""
@@ -75,3 +89,8 @@ class MatchSchema(Schema):
         if data['start_time'] > data['end_time']:
             message = 'The start time must be earlier than the end time.'
             raise ValidationError(message, 'start_time')
+
+    @post_dump
+    def format_elapsed_time_output(self, match):
+        """Format elapsed time field for output."""
+        match['elapsed_time'] = str(timedelta(seconds=int(match['elapsed_time'])))
