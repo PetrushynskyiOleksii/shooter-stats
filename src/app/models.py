@@ -137,7 +137,6 @@ class Player(db.Model, SchemaManager):
     @classmethod
     def get(cls, nickname):
         """Retrieve single player instance from database."""
-        # TODO: get
         player = db.session.query(cls).filter(cls.nickname == nickname).first()
         return player
 
