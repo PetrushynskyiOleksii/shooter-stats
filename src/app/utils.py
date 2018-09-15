@@ -1,6 +1,7 @@
 """Collections of helpers functions."""
 
 from flask import request
+from datetime import timedelta
 
 
 def paginate_response(data, page=1):
@@ -20,3 +21,9 @@ def paginate_response(data, page=1):
         'count': pagination.total
     }
     return response
+
+
+def format_time(time):
+    """Return formatted time."""
+    duration = timedelta(seconds=int(time))
+    return str(duration)

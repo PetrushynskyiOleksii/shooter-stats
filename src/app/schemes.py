@@ -1,11 +1,11 @@
 """Marshmallow schemes for API representations."""
 
 import re
-from datetime import timedelta as td
 
 from marshmallow import (
     Schema, fields, validates, ValidationError,
     validates_schema, post_dump)
+from .utils import format_time
 
 
 class PlayerSchema(Schema):
@@ -46,8 +46,8 @@ class PlayerSchema(Schema):
     def format_time_output(self, data):
         """Format time fields for output."""
         if all(self.time_stats_fields) in data:
-            data['max_match_time'] = str(td(seconds=int(data.get('max_match_time', 0))))
-            data['min_match_time'] = str(td(seconds=int(data.get('min_match_time', 0))))
+            data['max_match_time'] = format_time(data.get('min_match_time', 0))
+            data['min_match_time'] = format_time(data.get('min_match_time', 0))
 
 
 class ServerSchema(Schema):
@@ -74,10 +74,9 @@ class ServerSchema(Schema):
     def format_time_output(self, data):
         """Format time fields for output."""
         if all(self.time_stats_fields) in data:
-            # TODO: create func for format time fields
-            data['min_match_time'] = str(td(seconds=int(data.get('min_match_time', 0))))
-            data['max_match_time'] = str(td(seconds=int(data.get('max_match_time', 0))))
-            data['avg_match_time'] = str(td(seconds=int(data.get('avg_match_time', 0))))
+            data['min_match_time'] = format_time(data.get('min_match_time', 0))
+            data['max_match_time'] = format_time(data.get('max_match_time', 0))
+            data['avg_match_time'] = format_time(data.get('avg_match_time', 0))
 
 
 class MatchSchema(Schema):
@@ -100,4 +99,4 @@ class MatchSchema(Schema):
     @post_dump
     def format_elapsed_time_output(self, data):
         """Format elapsed time field for output."""
-        data['elapsed_time'] = str(td(seconds=int(data.get('elapsed_time', 0))))
+        data['elapsed_time'] = format_time(data.get('elapsed_time', 0))
