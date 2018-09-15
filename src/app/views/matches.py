@@ -23,7 +23,6 @@ def create_match():
     if not json_data:
         return jsonify({'error': 'No required input data provided.'}), 400
 
-    # TODO: check for exist endpoint
     data, errors = Match.from_dict(json_data)
     if errors:
         return jsonify(errors), 400
@@ -32,6 +31,7 @@ def create_match():
     match = Match(data)
 
     # Update players data
+    # FIXME: improve updating players
     for player in data.get('players'):
         match_player = Scoreboard(player_data=player, match_id=match.id)
         player_for_upd = db.session.query(Player).filter(

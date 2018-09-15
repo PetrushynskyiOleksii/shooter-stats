@@ -1,15 +1,17 @@
 """Marshmallow schemes for API representations."""
 
 import re
-from datetime import timedelta
 
 from marshmallow import (
     Schema, fields, validates, ValidationError,
     validates_schema, post_dump)
+from .utils import format_time
 
 
 class PlayerSchema(Schema):
     """Serializer schema for player JSON representation."""
+
+    time_stats_fields = ['min_match_time', 'max_match_time']
 
     nickname = fields.Str(required=True)
     player_nickname = fields.Str(dump_only=True)
@@ -41,14 +43,17 @@ class PlayerSchema(Schema):
             raise ValidationError(message)
 
     @post_dump
-    def format_time_output(self, match):
+    def format_time_output(self, data):
         """Format time fields for output."""
-        match['max_match_time'] = str(timedelta(seconds=int(match['max_match_time'])))
-        match['min_match_time'] = str(timedelta(seconds=int(match['min_match_time'])))
+        if all(self.time_stats_fields) in data:
+            data['max_match_time'] = format_time(data.get('min_match_time', 0))
+            data['min_match_time'] = format_time(data.get('min_match_time', 0))
 
 
 class ServerSchema(Schema):
     """Serializer schema for server JSON representation."""
+
+    time_stats_fields = ['min_match_time', 'max_match_time', 'avg_match_time']
 
     endpoint = fields.Str(required=True)
     title = fields.Str(required=True)
@@ -66,11 +71,12 @@ class ServerSchema(Schema):
             raise ValidationError(message)
 
     @post_dump
-    def format_time_output(self, match):
+    def format_time_output(self, data):
         """Format time fields for output."""
-        match['min_match_time'] = str(timedelta(seconds=int(match['min_match_time'])))
-        match['max_match_time'] = str(timedelta(seconds=int(match['max_match_time'])))
-        match['avg_match_time'] = str(timedelta(seconds=int(match['avg_match_time'])))
+        if all(self.time_stats_fields) in data:
+            data['min_match_time'] = format_time(data.get('min_match_time', 0))
+            data['max_match_time'] = format_time(data.get('max_match_time', 0))
+            data['avg_match_time'] = format_time(data.get('avg_match_time', 0))
 
 
 class MatchSchema(Schema):
@@ -91,6 +97,6 @@ class MatchSchema(Schema):
             raise ValidationError(message, 'start_time')
 
     @post_dump
-    def format_elapsed_time_output(self, match):
+    def format_elapsed_time_output(self, data):
         """Format elapsed time field for output."""
-        match['elapsed_time'] = str(timedelta(seconds=int(match['elapsed_time'])))
+        data['elapsed_time'] = format_time(data.get('elapsed_time', 0))

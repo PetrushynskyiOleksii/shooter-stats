@@ -1,6 +1,6 @@
 """The configurations for a project."""
 
-import os
+from .utils import get_env_var
 
 
 class BaseConfig(object):
@@ -8,9 +8,8 @@ class BaseConfig(object):
 
     DEBUG = False
     CSRF_ENABLED = True
-    SECRET = os.getenv('SECRET', 'default_secret_key')
-    DEFAULT_URI = 'postgresql://shooter:shooter@localhost/shooterstats'
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', DEFAULT_URI)
+    SECRET = get_env_var('SECRET')
+    SQLALCHEMY_DATABASE_URI = get_env_var('DATABASE_URL')
 
 
 class DevelopmentConfig(BaseConfig):

@@ -75,7 +75,7 @@ class Server(db.Model, SchemaManager):
             server = result.Server
             server._set_stats_attrs(result)
         else:
-            server = None
+            server = cls.get(endpoint=endpoint)
 
         return server
 
@@ -137,7 +137,6 @@ class Player(db.Model, SchemaManager):
     @classmethod
     def get(cls, nickname):
         """Retrieve single player instance from database."""
-        # TODO: get
         player = db.session.query(cls).filter(cls.nickname == nickname).first()
         return player
 
@@ -157,8 +156,11 @@ class Player(db.Model, SchemaManager):
             .filter(cls.nickname == nickname)\
             .first()
 
-        player = result.Player
-        player._set_stats_attrs(result)
+        if result:
+            player = result.Player
+            player._set_stats_attrs(result)
+        else:
+            player = cls.get(nickname=nickname)
 
         return player
 
@@ -218,8 +220,7 @@ class Match(db.Model, SchemaManager):
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
     elapsed_time = db.Column(db.Interval, nullable=False)
-    server_endpoint = db.Column(db.String(64), db.ForeignKey('servers.endpoint'),
-                                nullable=False)
+    server_endpoint = db.Column(db.String(64), db.ForeignKey('servers.endpoint'))
     server = db.relationship('Server', backref=db.backref('matches', lazy='subquery'))
     players = db.relationship('Scoreboard', back_populates='match')
 

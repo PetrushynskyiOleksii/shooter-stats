@@ -28,7 +28,7 @@ def create_player():
 
     player = Player.get(data.get('nickname'))
     if player:
-        return jsonify({'error': 'Player with this nickname already exists.'}), 400
+        return jsonify({'error': 'Player with this nickname already exists.'}), 409
 
     # Create a new player instance
     player = Player(data)
