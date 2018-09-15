@@ -8,83 +8,149 @@ consumes:
   - application/json
 produces:
   - application/json
+basePath: /
 
 paths:
   /servers:
     get:
       operationId: app.views.servers.get_servers
-      summary: Returns a list of servers.
+      summary: Return a paginated list of servers.
+      parameters:
+      - name: order_by
+        in: query
+        description: Sort list by endpoint or title.
+        type: string
+        enum: [title, endpoint]
+        required: false
+      - name: page
+        in: query
+        description: Return specific page of list.
+        type: integer
+        default: 1
+        required: false
       responses:
         '200':
-          description: A JSON response with servers instances.
+          description: OK. A JSON response with paginated servers instances.
+          schema:
+            $ref: "#/definitions/ServersList"
     post:
       operationId: app.views.servers.create_server
       summary: Create a new server instance.
+      parameters:
+      - in: body
+        name: server
+        description: The server to create.
+        schema:
+          $ref: '#/definitions/Server'
       responses:
         '201':
-          description: Server created.
+          description: Created.
         '400':
-          description: 'Invalid input, server instance already exists.'
+          description: No required input data provided.
+        '409':
+          description: Server with this endpoint already exists.
+
   /servers/{endpoint}:
     get:
       operationId: app.views.servers.get_server
       summary: Return a single server instance by *endpoint*.
       parameters:
-        - name: endpoint
-          in: path
-          description: Server endpoint
-          type: string
-          required: true
+      - name: endpoint
+        in: path
+        description: The server endpoint.
+        type: string
+        required: true
       responses:
         '200':
-          description: A JSON response with single server instance and its statistic.
+          description: OK. A JSON response with single server instance and its statistic.
+          schema:
+            $ref: "#/definitions/ServerStats"
         '404':
           description: A server with the specified *endpoint* was not found.
     patch:
       operationId: app.views.servers.update_server
       summary: Update server instance with the specified *endpoint*.
       parameters:
-        - name: endpoint
-          in: path
-          description: Server endpoint
+      - name: endpoint
+        in: path
+        description: The server endpoint.
+        type: string
+        required: true
+      - name: title
+        in: body
+        description: The server title.
+        required: true
+        schema:
           type: string
-          required: true
+          example: new_title
       responses:
         '200':
           description: A JSON response with successfully updated server instances.
-        '400':
-          description: Invalid input.
         '404':
           description: A server with the specified *endpoint* was not found.
+
+
+
 
   /players:
     get:
       operationId: app.views.players.get_players
-      summary: Returns a list of players.
+      summary: Returns a paginated list of players.
+      parameters:
+      - name: order_by
+        in: query
+        description: Sort list by kills/deaths/assists.
+        type: string
+        enum: [kills, deaths, assists]
+        required: false
+      - name: page
+        in: query
+        description: Return specific page of list.
+        type: integer
+        default: 1
+        required: false
+        minimum: 1
       responses:
         '200':
-          description: A JSON response with players instances.
+          description: OK. A JSON response with players instances.
+          schema:
+            $ref: "#/definitions/PlayersList"
     post:
       operationId: app.views.players.create_player
       summary: Create a new player instance.
+      parameters:
+      - in: body
+        name: player
+        description: A new player instance.
+        schema:
+          properties:
+            nickname:
+              type: string
+              example: new_player_123
+              description: The nickname of new player.
+        required: true
       responses:
         '201':
-          description: Player created.
+          description: Created.
         '400':
-          description: 'Invalid input, player instance already exists.'
+          description: No required input data provided.
+        '409':
+          description: Player with this nickname already exists.
   /players/{nickname}:
     get:
       operationId: app.views.players.get_player
       summary: Return a single player instance by *nickname*.
       parameters:
-        - name: nickname
-          in: path
-          description: Player nickname
-          type: string
-          required: true
+      - name: nickname
+        in: path
+        description: The player nickname.
+        type: string
+        required: true
       responses:
         '200':
-          description: A JSON response with single player instance and its statistic.
+          description: OK. A JSON response with single player instance and its statistic.
+          schema:
+            $ref: '#/definitions/PlayerStats'
         '404':
           description: A player with the specified *nickname* was not found.
   /servers/{endpoint}/players:
@@ -92,60 +158,245 @@ paths:
       operationId: app.views.players.get_server_players
       summary: Returns a list of server players.
       parameters:
-        - name: endpoint
-          in: path
-          description: Server endpoint
-          type: string
-          required: true
+      - name: endpoint
+        in: path
+        description: The server endpoint.
+        type: string
+        required: true
+      - name: order_by
+        in: query
+        description: Sort list by kills/deaths/assists.
+        type: string
+        enum: [kills, deaths, assists]
+        required: false
+      - name: page
+        in: query
+        description: Return specific page of list.
+        type: integer
+        default: 1
+        required: false
+        minimum: 1
       responses:
         '200':
-          description: A JSON response with players instances.
+          description: OK. A JSON response with players instances.
+          schema:
+            $ref: "#/definitions/PlayersList"
 
-  /servers/{endpoint}/matches:
-    get:
-      operationId: app.views.matches.get_server_matches
-      summary: Returns a list of server matches.
-      parameters:
-        - name: endpoint
-          in: path
-          description: Server endpoint
-          type: string
-          required: true
-      responses:
-        '200':
-          description: A JSON response with server matches instances.
-  /players/{nickname}/matches:
-    get:
-      operationId: app.views.matches.get_player_matches
-      summary: Returns a list of server matches.
-      parameters:
-        - name: nickname
-          in: path
-          description: Player nickname
-          type: string
-          required: true
-      responses:
-        '200':
-          description: A JSON response with player matches instances.
-  /matches/{id}:
-    get:
-      operationId: app.views.matches.get_match
-      summary: Return a single player instance by *nickname*.
-      parameters:
-        - name: id
-          in: path
-          description: Match id
-          type: integer
-          required: true
-      responses:
-        '200':
-          description: A JSON response with single match instance.
-        '404':
-          description: A match with the specified *id* was not found.
+
+
+
   /matches:
     post:
       operationId: app.views.matches.create_match
-      summary: Create a new player instance.
+      summary: Create a new match instance.
+      parameters:
+      - in: body
+        name: match
+        schema:
+          $ref: "#/definitions/Match"
+        required: true
       responses:
         '201':
-          description: Match created.
+          description: Created.
+        '400':
+          description: No required input data provided.
+  /matches/{id}:
+    get:
+      operationId: app.views.matches.get_match
+      summary: Return a single match instance by *id*.
+      parameters:
+      - name: id
+        in: path
+        description: The match id.
+        type: integer
+        required: true
+      responses:
+        '200':
+          description: A JSON response with single match instance.
+          schema:
+            $ref: "#/definitions/MatchStats"
+        '404':
+          description: A match with the specified *id* was not found.
+  /servers/{endpoint}/matches:
+    get:
+      operationId: app.views.matches.get_server_matches
+      summary: Returns a paginated list of server matches ordered by date.
+      parameters:
+      - name: endpoint
+        in: path
+        description: The server endpoint.
+        type: string
+        required: true
+      - name: page
+        in: query
+        description: Return specific page of list.
+        type: integer
+        default: 1
+        required: false
+        minimum: 1
+      responses:
+        '200':
+          description: OK. A JSON response with server matches instances.
+          schema:
+            $ref: "#/definitions/MatchesList"
+  /players/{nickname}/matches:
+    get:
+      operationId: app.views.matches.get_player_matches
+      summary: Returns a paginated list of player matches ordered by date.
+      parameters:
+      - name: nickname
+        in: path
+        description: The player nickname.
+        type: string
+        required: true
+      - name: page
+        in: query
+        description: Return specific page of list.
+        type: integer
+        default: 1
+        required: false
+        minimum: 1
+      responses:
+        '200':
+          description: OK. A JSON response with player matches instances.
+          schema:
+            $ref: "#/definitions/MatchesList"
+
+
+definitions:
+  Server:
+    properties:
+      title:
+        type: string
+        description: The server title.
+        example: my-server
+      endpoint:
+        type: string
+        description: The server endpoint.
+        example: localhost-8888
+  ServersList:
+    properties:
+      objects:
+        description: Contains the list of servers.
+        type: array
+        items:
+          $ref: "#/definitions/Server"
+  ServerStats:
+    properties:
+      total_matches:
+        type: integer
+        description: The total players on server.
+        example: 71
+      total_players:
+        type: integer
+        description: The total matches on server.
+        example: 914
+      max_match_time:
+        type: string
+        description: The longest match time.
+        example: 03:44:13
+      min_match_time:
+        type: string
+        description: The shortest match time.
+        example: 00:14:44
+      avg_match_time:
+        type: string
+        description: The average of match times.
+        example: 01:00:36
+    allOf:
+      - $ref: "#/definitions/Server"
+
+
+  Player:
+    properties:
+      nickname:
+        type: string
+        description: The player nickname.
+        example: best_player123
+      kills:
+        type: integer
+        description: The player kills.
+        example: 5
+      deaths:
+        type: integer
+        description: The player deaths.
+        example: 0
+      assists:
+        type: integer
+        description: The player assists.
+        example: 4
+      kda:
+        type: integer
+        description: The player KDA.
+        example: 9
+  PlayersList:
+    properties:
+      objects:
+        description: Contains the list of players.
+        type: array
+        items:
+          $ref: "#/definitions/Player"
+  PlayerStats:
+    properties:
+      total_matches:
+        type: integer
+        description: The total player matches.
+        example: 991
+      max_kills_per_match:
+        type: integer
+        description: Maximum player kills per match.
+        example: 22
+      max_deaths_per_match:
+        type: integer
+        description: Maximum player deaths per match.
+        example: 15
+      max_assists_per_match:
+        type: integer
+        description: Maximum player assists per match.
+        example: 35
+      max_match_time:
+        type: string
+        description: The longest player match.
+        example: 01:23:02
+      min_match_time:
+        type: string
+        description: The shortest player match.
+        example: 00:10:44
+    allOf:
+      - $ref: "#/definitions/Player"
+
+
+  Match:
+    properties:
+      id:
+        type: integer
+        description: The match id.
+        example: 45
+      start_time:
+        type: string
+        description: The match start time.
+        example: 22.12.1998 14:00:40
+      end_time:
+        type: string
+        description: The match end time.
+        example: 22.12.1998 14:30:00
+      players:
+        type: array
+        description: The match players.
+        items:
+          $ref: "#/definitions/Player"
+  MatchStats:
+    properties:
+      elapsed_time:
+        type: string
+        description: The elapsed match time.
+        example: 00:29:20
+    allOf:
+      - $ref: "#/definitions/Match"
+  MatchesList:
+    properties:
+      objects:
+        description: Contains the list of matches.
+        type: array
+        items:
+          $ref: "#/definitions/MatchStats"
