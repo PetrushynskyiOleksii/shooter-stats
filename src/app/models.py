@@ -75,7 +75,7 @@ class Server(db.Model, SchemaManager):
             server = result.Server
             server._set_stats_attrs(result)
         else:
-            server = None
+            server = cls.get(endpoint=endpoint)
 
         return server
 
@@ -157,8 +157,11 @@ class Player(db.Model, SchemaManager):
             .filter(cls.nickname == nickname)\
             .first()
 
-        player = result.Player
-        player._set_stats_attrs(result)
+        if result:
+            player = result.Player
+            player._set_stats_attrs(result)
+        else:
+            player = cls.get(nickname=nickname)
 
         return player
 
