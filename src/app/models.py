@@ -218,8 +218,7 @@ class Match(db.Model, SchemaManager):
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
     elapsed_time = db.Column(db.Interval, nullable=False)
-    server_endpoint = db.Column(db.String(64), db.ForeignKey('servers.endpoint'),
-                                nullable=False)
+    server_endpoint = db.Column(db.String(64), db.ForeignKey('servers.endpoint'))
     server = db.relationship('Server', backref=db.backref('matches', lazy='subquery'))
     players = db.relationship('Scoreboard', back_populates='match')
 
